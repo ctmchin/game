@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 【修復】這裡移除了 hidden，確保一打開網頁絕對不會是白畫面 -->
-    <div id="login-screen" class="login-screen"> 
+    <div id="login-screen" class="login-screen hidden">
         <div class="login-box">
             <h2>🚀 語文互動宇宙</h2>
             <p>請登入以同步你的靈獸與備忘錄</p>
@@ -32,7 +31,7 @@
         </div>
     </div>
 
-    <!-- 底部螢光筆提示欄 -->
+    <!-- 底部 iPad/手機 專用螢光筆提示欄 -->
     <div id="mobile-highlight-bar" class="mobile-highlight-bar hidden">
         <div class="highlight-bar-content">
             <span class="highlight-preview">「<span id="highlight-text-preview" style="color:#d32f2f; font-weight:bold;"></span>」</span>
@@ -41,8 +40,11 @@
         </div>
     </div>
 
-    <!-- 儀表板 -->
+    <!-- 手機版側邊欄遮罩 -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <div id="dashboard" class="dashboard hidden">
+        <!-- 側邊導航欄 -->
         <nav class="sidebar">
             <div class="logo">🚀 語文宇宙</div>
             <div class="user-profile">
@@ -65,14 +67,20 @@
         </nav>
 
         <main class="content">
-            <!-- 模塊 1：成語挑戰 -->
-            <section id="feature-1" class="module hidden">
+            <!-- 手機版專屬頂部導航 -->
+            <div class="mobile-header">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ 選單</button>
+                <h3 class="mobile-title">語文宇宙</h3>
+            </div>
+
+            <!-- 模塊 1：成語挑戰 (已移除 hidden) -->
+            <section id="feature-1" class="module">
                 <h2>🎯 1. 成語大挑戰 (DSE 級別)</h2>
                 <div id="quiz-container-1"></div>
             </section>
 
-            <!-- 模塊 2：語病通緝令 -->
-            <section id="feature-2" class="module hidden">
+            <!-- 模塊 2：語病通緝令 (已移除 hidden) -->
+            <section id="feature-2" class="module">
                 <h2>🕵️ 2. 語病通緝令 (DSE 級別)</h2>
                 <div id="quiz-container-2"></div>
             </section>
@@ -95,7 +103,8 @@
                 </div>
             </section>
 
-            <section id="feature-15" class="module hidden">
+            <!-- 備忘錄區 (已移除 hidden) -->
+            <section id="feature-15" class="module">
                 <h2>📝 15. 專屬語文備忘錄</h2>
                 <div class="card">
                     <div id="memo-list" class="memo-container">
