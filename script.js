@@ -14,20 +14,17 @@ let currentUser = null;
 let memos = [];
 let userScore = 0;
 
-// 【修復】加入 try-catch，確保 Firebase 如果被擋住，網頁也不會崩潰
 try {
     firebase.initializeApp(firebaseConfig);
-    
-    // 監聽登入狀態：刷新網頁也不會登出
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             handleLoginSuccess({ displayName: user.displayName, uid: user.uid });
         } else {
-            checkManualLogin(); // 檢查有沒有手動登入過
+            checkManualLogin();
         }
     });
 } catch (error) {
-    console.error("Firebase 連線延遲，啟用離線/手動模式：", error);
+    console.error("Firebase 連線失敗：", error);
     checkManualLogin();
 }
 
@@ -74,24 +71,39 @@ function handleLoginSuccess(user) {
 }
 
 function logout() {
-    try {
-        firebase.auth().signOut();
-    } catch(e) {}
+    try { firebase.auth().signOut(); } catch(e) {}
     sessionStorage.removeItem('manualUser');
     currentUser = null;
     document.getElementById('dashboard').classList.add('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
 }
 
+// ========================================================
+// 2.5 手機版側邊欄開合邏輯
+// ========================================================
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('active');
+}
+
 function switchTab(tabId, event) {
     document.querySelectorAll('.module').forEach(mod => mod.classList.remove('active'));
     document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
+    
+    const target = document.getElementById(tabId);
+    if(target) target.classList.add('active');
+    
     if(event) event.target.classList.add('active');
+    
+    // 如果是手機版，點擊後自動收起選單
+    if(window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('active');
+    }
 }
 
 // ========================================================
-// 3. 螢光筆與備忘錄系統 (顯示開頭...結尾)
+// 3. 螢光筆與備忘錄系統
 // ========================================================
 let pendingSelectedText = "";
 const mobileBar = document.getElementById('mobile-highlight-bar');
@@ -102,7 +114,6 @@ document.addEventListener('selectionchange', function() {
     if (selectedStr.length > 0 && isSelectionInsideArticle(selection)) {
         pendingSelectedText = selectedStr;
         
-        // 優化顯示：保留前 8 字與後 4 字
         let displayStr = selectedStr;
         if (selectedStr.length > 15) {
             displayStr = selectedStr.substring(0, 8) + " ... " + selectedStr.substring(selectedStr.length - 4);
@@ -154,7 +165,7 @@ function loadMemos(uid) {
 }
 
 // ========================================================
-// 4. 動態題庫引擎 (測試版 10 題)
+// 4. 動態題庫引擎
 // ========================================================
 const idiomsData = [
     {
