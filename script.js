@@ -1,85 +1,159 @@
-// 全局變數：儲存學生的筆記
+// ========================================================
+// 1. FIREBASE 老師專屬設定 (已填入 ctm-game 專案金鑰)
+// ========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I",
+    authDomain: "ctm-game.firebaseapp.com",
+    projectId: "ctm-game",
+    storageBucket: "ctm-game.firebasestorage.app",
+    messagingSenderId: "204941638255",
+    appId: "1:204941638255:web:f23470bb681e9dac6eeb9a"
+};
+
+// 初始化 Firebase
+firebase.initializeApp(firebaseConfig);
+
+// ========================================================
+// 2. 帳號與登入邏輯 (Google 登入 與 模擬帳號)
+// ========================================================
+let currentUser = null;
 let memos = [];
 
-// 1. 模擬登入功能
-function login() {
-    // 隱藏登入畫面，顯示儀表板
+// A. 真正的 Google 帳號登入
+function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    
+    // 設定語言為繁體中文
+    firebase.auth().languageCode = 'zh-HK'; 
+    
+    firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            handleLoginSuccess({
+                displayName: user.displayName,
+                uid: user.uid,
+                role: "student"
+            });
+        }).catch((error) => {
+            if (error.code === 'auth/operation-not-allowed') {
+                alert("⚠️ 錯誤：老師尚未在 Firebase 後台啟用「Google 登入」功能，請參考我的下一步指示！");
+            } else {
+                alert("登入失敗: " + error.message);
+            }
+        });
+}
+
+// B. 預設的手動/教師帳號登入 (免設定，隨時可用)
+const presetAccounts = {
+    "admin": { name: "陳老師 (管理員)", role: "teacher" },
+    "student1": { name: "中一A 李德華", role: "student" },
+    "student2": { name: "中二B 郭富城", role: "student" }
+};
+
+function loginManually() {
+    const username = document.getElementById('username-input').value.trim();
+    const password = document.getElementById('password-input').value;
+
+    if (username === "" || password === "") {
+        alert("請輸入帳號和密碼！");
+        return;
+    }
+
+    if (presetAccounts[username] && password === "123456") {
+        handleLoginSuccess({
+            displayName: presetAccounts[username].name,
+            uid: username,
+            role: presetAccounts[username].role
+        });
+    } else {
+        alert("❌ 帳號或密碼錯誤！(測試密碼均為: 123456)");
+    }
+}
+
+// 登入成功後的版面處理
+function handleLoginSuccess(user) {
+    currentUser = user;
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     
-    // 載入之前存好的備忘錄
-    loadMemos();
+    document.getElementById('user-display-name').innerText = user.displayName;
+    loadMemos(user.uid);
 }
 
-// 2. 切換選單功能
-function switchTab(tabId, event) {
-    document.querySelectorAll('.module').forEach(mod => mod.classList.remove('active'));
-    document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
-    
-    document.getElementById(tabId).classList.add('active');
-    if(event) event.target.classList.add('active');
+function logout() {
+    currentUser = null;
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('username-input').value = "";
+    document.getElementById('password-input').value = "";
 }
 
-// 3. 螢光筆核心技術 (偵測文字反白)
-const highlightBtn = document.getElementById('highlight-btn');
-let selectedText = "";
+// ========================================================
+// 3. 跨平台 iPad/手機 螢光筆核心 (自動偵測選取)
+// ========================================================
+let pendingSelectedText = "";
+const mobileBar = document.getElementById('mobile-highlight-bar');
+const previewText = document.getElementById('highlight-text-preview');
 
-document.addEventListener('mouseup', function(e) {
-    // 獲取學生反白的文字
-    selectedText = window.getSelection().toString().trim();
+document.addEventListener('selectionchange', function() {
+    const selection = window.getSelection();
+    const selectedStr = selection.toString().trim();
 
-    if (selectedText.length > 0) {
-        // 如果有選取文字，讓按鈕出現在滑鼠上方
-        highlightBtn.style.left = e.pageX + 'px';
-        highlightBtn.style.top = (e.pageY - 10) + 'px';
-        highlightBtn.classList.remove('hidden');
-    } else {
-        // 如果點擊空白處取消反白，就隱藏按鈕
-        highlightBtn.classList.add('hidden');
+    if (selectedStr.length > 0 && isSelectionInsideArticle(selection)) {
+        pendingSelectedText = selectedStr;
+        const displayStr = selectedStr.length > 15 ? selectedStr.substring(0, 15) + "..." : selectedStr;
+        previewText.innerText = displayStr;
+        mobileBar.classList.remove('hidden');
     }
 });
 
-// 當學生點擊「🖍️ 收藏至備忘錄」時執行
-highlightBtn.addEventListener('mousedown', function(e) {
-    e.preventDefault(); // 防止按鈕點擊時文字取消反白
-    if (selectedText.length > 0) {
-        saveMemo(selectedText);
-        
-        // 收藏成功後，彈出提示並隱藏按鈕
-        alert("✅ 成功收藏到備忘錄！");
-        window.getSelection().removeAllRanges(); // 取消文字反白狀態
-        highlightBtn.classList.add('hidden');
-    }
-});
+function isSelectionInsideArticle(selection) {
+    if (selection.rangeCount === 0) return false;
+    const container = selection.getRangeAt(0).commonAncestorContainer;
+    const articleCard = document.getElementById('article-content');
+    return articleCard && articleCard.contains(container.nodeType === 3 ? container.parentNode : container);
+}
 
-// 4. 儲存筆記到系統中
+function confirmSaveHighlight() {
+    if (pendingSelectedText.length > 0) {
+        saveMemo(pendingSelectedText);
+        alert("🖍️ 重點已成功收藏到您的備忘錄！");
+        window.getSelection().removeAllRanges();
+        closeHighlightBar();
+    }
+}
+
+function closeHighlightBar() {
+    mobileBar.classList.add('hidden');
+    pendingSelectedText = "";
+}
+
+// ========================================================
+// 4. 備忘錄儲存邏輯 (基於本機 LocalStorage，依使用者隔離)
+// ========================================================
 function saveMemo(text) {
-    // 獲取當前時間
     const now = new Date();
     const timeString = now.toLocaleDateString() + " " + now.toLocaleTimeString();
 
-    // 將筆記加入陣列
     const newMemo = {
         content: text,
         time: timeString
     };
-    memos.unshift(newMemo); // 加到最前面
+    memos.unshift(newMemo);
 
-    // 更新顯示畫面並儲存到瀏覽器記憶體
     updateMemoUI();
-    localStorage.setItem('studentMemos', JSON.stringify(memos));
+    
+    if (currentUser) {
+        localStorage.setItem(`memos_${currentUser.uid}`, JSON.stringify(memos));
+    }
 }
 
-// 5. 將筆記顯示在「15. 備忘錄」模塊中
 function updateMemoUI() {
     const list = document.getElementById('memo-list');
-    
     if (memos.length === 0) {
         list.innerHTML = '<p style="color: #888; text-align: center;">暫無筆記，快去閱讀區畫重點吧！</p>';
         return;
     }
-
-    // 將每一條筆記變成 HTML 顯示出來
     list.innerHTML = memos.map(memo => `
         <div class="memo-item">
             <p>${memo.content}</p>
@@ -88,11 +162,19 @@ function updateMemoUI() {
     `).join('');
 }
 
-// 6. 網頁載入時，讀取以前存的筆記
-function loadMemos() {
-    const saved = localStorage.getItem('studentMemos');
+function loadMemos(uid) {
+    const saved = localStorage.getItem(`memos_${uid}`);
     if (saved) {
         memos = JSON.parse(saved);
-        updateMemoUI();
+    } else {
+        memos = [];
     }
+    updateMemoUI();
+}
+
+function switchTab(tabId, event) {
+    document.querySelectorAll('.module').forEach(mod => mod.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if(event) event.target.classList.add('active');
 }
