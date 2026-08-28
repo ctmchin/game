@@ -1,5 +1,5 @@
 // ========================================================
-// 1. FIREBASE 初始化
+// 1. FIREBASE 初始化與斷線保護
 // ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I",
@@ -9,33 +9,48 @@ const firebaseConfig = {
     messagingSenderId: "204941638255",
     appId: "1:204941638255:web:f23470bb681e9dac6eeb9a"
 };
-firebase.initializeApp(firebaseConfig);
 
-// ========================================================
-// 2. 帳號狀態持久化 (解決 Refresh 需重新登入的問題)
-// ========================================================
 let currentUser = null;
 let memos = [];
 let userScore = 0;
 
-// 監聽登入狀態：刷新網頁也不會登出
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        handleLoginSuccess({ displayName: user.displayName, uid: user.uid });
-    } else {
-        const savedManualUser = sessionStorage.getItem('manualUser');
-        if (savedManualUser) {
-            handleLoginSuccess(JSON.parse(savedManualUser));
+// 【修復】加入 try-catch，確保 Firebase 如果被擋住，網頁也不會崩潰
+try {
+    firebase.initializeApp(firebaseConfig);
+    
+    // 監聽登入狀態：刷新網頁也不會登出
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            handleLoginSuccess({ displayName: user.displayName, uid: user.uid });
         } else {
-            document.getElementById('login-screen').classList.remove('hidden');
+            checkManualLogin(); // 檢查有沒有手動登入過
         }
-    }
-});
+    });
+} catch (error) {
+    console.error("Firebase 連線延遲，啟用離線/手動模式：", error);
+    checkManualLogin();
+}
 
+function checkManualLogin() {
+    const savedManualUser = sessionStorage.getItem('manualUser');
+    if (savedManualUser) {
+        handleLoginSuccess(JSON.parse(savedManualUser));
+    } else {
+        document.getElementById('login-screen').classList.remove('hidden');
+    }
+}
+
+// ========================================================
+// 2. 帳號與登入邏輯
+// ========================================================
 function loginWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().languageCode = 'zh-HK'; 
-    firebase.auth().signInWithPopup(provider).catch((error) => alert("登入失敗: " + error.message));
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().languageCode = 'zh-HK'; 
+        firebase.auth().signInWithPopup(provider).catch((error) => alert("登入失敗: " + error.message));
+    } catch (e) {
+        alert("無法連線到 Google 伺服器，請先使用手動登入！");
+    }
 }
 
 function loginManually() {
@@ -59,7 +74,9 @@ function handleLoginSuccess(user) {
 }
 
 function logout() {
-    firebase.auth().signOut();
+    try {
+        firebase.auth().signOut();
+    } catch(e) {}
     sessionStorage.removeItem('manualUser');
     currentUser = null;
     document.getElementById('dashboard').classList.add('hidden');
@@ -137,7 +154,7 @@ function loadMemos(uid) {
 }
 
 // ========================================================
-// 4. 動態題庫引擎 (測試版 10 題，確認不崩潰)
+// 4. 動態題庫引擎 (測試版 10 題)
 // ========================================================
 const idiomsData = [
     {
@@ -187,4 +204,117 @@ const idiomsData = [
     {
         question: "【差強人意】請判斷以下哪一個句子正確使用了此成語？",
         options: [
-            "A. 這次考試他的成績退步了很多，真是令人差強人意。"
+            "A. 這次考試他的成績退步了很多，真是令人差強人意。",
+            "B. 雖然這部電影的特效一般，但劇情還算差強人意。",
+            "C. 他做事總是馬馬虎虎，表現實在是太差強人意了。",
+            "D. 經過多次修改，這份報告依然差強人意，不被接納。"
+        ],
+        correctIndex: 1,
+        explanation: "✅ 正確！【差強人意】指「大體上還能使人滿意」，是褒義/中性詞。常被誤解為「不能令人滿意」。"
+    }
+];
+
+const grammarData = [
+    {
+        question: "請找出並修正以下句子的語病：「由於連日暴雨，使到低窪地區發生了嚴重的水浸。」",
+        options: [
+            "A. 缺少主語：應刪去「由於」或「使到」。",
+            "B. 搭配不當：「發生」不能搭配「水浸」。",
+            "C. 詞語冗贅：「嚴重」和「水浸」意思重複。",
+            "D. 邏輯矛盾：「連日暴雨」不會導致「水浸」。"
+        ],
+        correctIndex: 0,
+        explanation: "✅ 正確！濫用介詞導致主語缺失。用了「由於」又用「使到」，句子就沒有主角了。"
+    },
+    {
+        question: "請找出並修正以下句子的語病：「為了防止類似的校園欺凌事件不再發生，學校加強了輔導工作。」",
+        options: [
+            "A. 搭配不當：「加強」不能配「輔導工作」。",
+            "B. 邏輯矛盾：刪去「不」字，否則變成防止它「不發生」。",
+            "C. 詞語冗贅：「類似的」與「事件」意思重複。",
+            "D. 語序不當：「學校加強了」應放在句子的最開頭。"
+        ],
+        correctIndex: 1,
+        explanation: "✅ 正確！否定詞誤用。「防止」加上「不再」，負負得正，變成了「鼓勵它發生」。"
+    },
+    {
+        question: "請找出並修正以下句子的語病：「閱讀這本名著，大約需要兩星期左右的時間。」",
+        options: [
+            "A. 缺少主語：句首應加入「我」。",
+            "B. 詞語冗贅：「大約」和「左右」語意重複，應刪其一。",
+            "C. 搭配不當：「閱讀」不能配「時間」。",
+            "D. 邏輯矛盾：「這本名著」不可能在兩星期內讀完。"
+        ],
+        correctIndex: 1,
+        explanation: "✅ 正確！「大約」和「左右」都是表示估計，兩個一起用造成了語意重複（冗贅）。"
+    },
+    {
+        question: "請找出並修正以下句子的語病：「經過教練的悉心指導，令我的游泳技術有了明顯的進步。」",
+        options: [
+            "A. 搭配不當：「明顯」不能形容「進步」。",
+            "B. 詞性誤用：「指導」不能作名詞使用。",
+            "C. 缺少主語：應刪除「經過」或「令」。",
+            "D. 語意不明：「技術」一詞太過空泛。"
+        ],
+        correctIndex: 2,
+        explanation: "✅ 正確！這與「由於...使到...」同理。句首用了「經過」，掩蓋了主語，後面又接「令」，導致沒有主語發出動作。"
+    },
+    {
+        question: "請找出並修正以下句子的語病：「香港的空氣污染問題日益嚴重，情況實在令人堪憂。」",
+        options: [
+            "A. 詞語冗贅：「堪憂」已包含「令人擔憂」，應刪去「令人」。",
+            "B. 邏輯矛盾：空氣污染「日益嚴重」不代表「堪憂」。",
+            "C. 缺少賓語：應在句末加上「的地步」。",
+            "D. 搭配不當：「情況」不能用「實在」來修飾。"
+        ],
+        correctIndex: 0,
+        explanation: "✅ 正確！「堪憂」的意思就是「值得擔憂/令人擔憂」。加上「令人」，就造成了語意重疊。"
+    }
+];
+
+function renderQuizzes() {
+    renderQuizBlock('quiz-container-1', idiomsData);
+    renderQuizBlock('quiz-container-2', grammarData);
+}
+
+function renderQuizBlock(containerId, dataArray) {
+    const container = document.getElementById(containerId);
+    if(!container) return; 
+    
+    let html = '';
+    dataArray.forEach((q, index) => {
+        html += `
+        <div class="card" style="margin-bottom: 20px;">
+            <p class="question"><strong>第 ${index + 1} 題：</strong>${q.question}</p>
+            <div class="options">
+                ${q.options.map((opt, optIndex) => `
+                    <button class="btn-option" onclick="checkAnswer(this, ${optIndex === q.correctIndex}, '${q.explanation}')">${opt}</button>
+                `).join('')}
+            </div>
+            <div class="feedback hidden" style="margin-top:15px;"></div>
+        </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function checkAnswer(btn, isCorrect, explanation) {
+    const parent = btn.parentElement;
+    const feedback = parent.nextElementSibling;
+    parent.querySelectorAll('.btn-option').forEach(b => b.disabled = true);
+    
+    feedback.classList.remove('hidden');
+    if (isCorrect) {
+        btn.style.backgroundColor = '#d4edda';
+        btn.style.borderColor = '#28a745';
+        feedback.className = 'feedback success';
+        feedback.innerHTML = explanation + "<br><br>🌟 獲得 20 積分！";
+        
+        userScore += 20;
+        document.getElementById('score').innerText = userScore;
+    } else {
+        btn.style.backgroundColor = '#f8d7da';
+        btn.style.borderColor = '#dc3545';
+        feedback.className = 'feedback error';
+        feedback.innerHTML = "❌ 答錯了！<br><br>" + explanation;
+    }
+}
