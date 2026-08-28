@@ -1,5 +1,5 @@
 // ========================================================
-// 1. FIREBASE 老師專屬設定 (ctm-game)
+// 1. FIREBASE 老師專屬設定
 // ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I",
@@ -10,35 +10,46 @@ const firebaseConfig = {
     appId: "1:204941638255:web:f23470bb681e9dac6eeb9a"
 };
 
-// 初始化 Firebase (使用瀏覽器相容寫法，請勿使用 import)
-firebase.initializeApp(firebaseConfig);
+// 嘗試啟動 Firebase (如果失敗會跳出警告)
+try {
+    firebase.initializeApp(firebaseConfig);
+} catch (error) {
+    alert("⚠️ Firebase 啟動失敗，請檢查 index.html 是否有載入 Firebase！錯誤：" + error.message);
+}
 
 // ========================================================
-// 2. 帳號與登入邏輯 (Google 登入 與 模擬帳號)
+// 2. 帳號與登入邏輯
 // ========================================================
 let currentUser = null;
 let memos = [];
 
-// A. 真正的 Google 帳號登入
 function loginWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().languageCode = 'zh-HK'; 
-    
-    // 呼叫彈出視窗
-    firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-            const user = result.user;
-            handleLoginSuccess({
-                displayName: user.displayName,
-                uid: user.uid,
-                role: "student"
+    try {
+        // 檢查 Firebase 系統存不存在
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            alert("⚠️ 找不到 Firebase 登入系統！請確認您的 index.html 有包含 firebase-auth 腳本。");
+            return;
+        }
+
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().languageCode = 'zh-HK'; 
+        
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                const user = result.user;
+                handleLoginSuccess({
+                    displayName: user.displayName,
+                    uid: user.uid,
+                    role: "student"
+                });
+            }).catch((error) => {
+                alert("❌ Google 登入視窗被阻擋或失敗！\n錯誤代碼：" + error.code + "\n原因：" + error.message);
             });
-        }).catch((error) => {
-            alert("登入失敗: " + error.message);
-        });
+    } catch (error) {
+        alert("❌ 執行登入程式時發生嚴重錯誤：" + error.message);
+    }
 }
 
-// B. 預設的手動/教師帳號登入 (備用)
 const presetAccounts = {
     "admin": { name: "陳老師 (管理員)", role: "teacher" },
     "student1": { name: "中一A 李德華", role: "student" },
@@ -60,12 +71,10 @@ function loginManually() {
     }
 }
 
-// 登入成功後的版面處理
 function handleLoginSuccess(user) {
     currentUser = user;
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
-    
     document.getElementById('user-display-name').innerText = user.displayName;
     loadMemos(user.uid);
 }
@@ -74,12 +83,10 @@ function logout() {
     currentUser = null;
     document.getElementById('dashboard').classList.add('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
-    document.getElementById('username-input').value = "";
-    document.getElementById('password-input').value = "";
 }
 
 // ========================================================
-// 3. 跨平台 iPad/手機 螢光筆核心 (自動偵測選取)
+// 3. 螢光筆核心 (自動偵測選取)
 // ========================================================
 let pendingSelectedText = "";
 const mobileBar = document.getElementById('mobile-highlight-bar');
@@ -119,20 +126,13 @@ function closeHighlightBar() {
 }
 
 // ========================================================
-// 4. 備忘錄儲存邏輯 (依使用者隔離)
+// 4. 備忘錄儲存邏輯
 // ========================================================
 function saveMemo(text) {
     const now = new Date();
     const timeString = now.toLocaleDateString() + " " + now.toLocaleTimeString();
-
-    const newMemo = {
-        content: text,
-        time: timeString
-    };
-    memos.unshift(newMemo);
-
+    memos.unshift({ content: text, time: timeString });
     updateMemoUI();
-    
     if (currentUser) {
         localStorage.setItem(`memos_${currentUser.uid}`, JSON.stringify(memos));
     }
@@ -154,11 +154,7 @@ function updateMemoUI() {
 
 function loadMemos(uid) {
     const saved = localStorage.getItem(`memos_${uid}`);
-    if (saved) {
-        memos = JSON.parse(saved);
-    } else {
-        memos = [];
-    }
+    memos = saved ? JSON.parse(saved) : [];
     updateMemoUI();
 }
 
