@@ -1,0 +1,103 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+.dashboard {
+    display: flex;
+    height: 100vh;
+}
+
+/* 側邊導航 */
+.sidebar {
+    width: 280px;
+    background-color: #fff;
+    border-right: 1px solid #e1e8ed;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 20px;
+    text-align: center;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+}
+
+.user-profile {
+    padding: 20px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    text-align: center;
+}
+
+.avatar { font-size: 2.5rem; margin-bottom: 10px; }
+
+.progress-bar {
+    width: 100%; height: 10px;
+    background-color: rgba(255,255,255,0.3);
+    border-radius: 5px; margin: 10px 0; overflow: hidden;
+}
+.progress { height: 100%; background-color: #ffeb3b; transition: width 0.3s; }
+
+.nav-links { list-style: none; padding: 10px 0; }
+.nav-title { padding: 15px 20px 5px; font-size: 0.85rem; color: #888; font-weight: bold; }
+.nav-links li a {
+    display: block; padding: 10px 20px; text-decoration: none; color: #555; transition: 0.2s;
+}
+.nav-links li a:hover, .nav-links li a.active {
+    background-color: #e3f2fd; color: #1976d2; border-left: 4px solid #1976d2;
+}
+
+/* 主內容區 */
+.content { flex: 1; padding: 40px; overflow-y: auto; }
+.module { display: none; }
+.module.active { display: block; animation: fadeIn 0.3s; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* UI 元件 */
+.card {
+    background: white; padding: 30px; border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px;
+}
+
+.question { font-size: 1.2rem; margin-bottom: 20px; font-weight: 500; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.btn-option {
+    padding: 15px; border: 2px solid #e0e0e0; background: white;
+    border-radius: 8px; font-size: 1rem; cursor: pointer; text-align: left; transition: 0.2s;
+}
+.btn-option:hover { border-color: #00f2fe; background: #f0f8ff; }
+
+.btn-primary {
+    padding: 12px 25px; border: none; background: #4facfe; color: white;
+    border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.2s; margin-top: 10px;
+}
+.btn-primary:hover { background: #00f2fe; }
+
+.text-input {
+    width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 8px;
+    font-size: 1rem; min-height: 100px; resize: vertical; margin-bottom: 10px;
+}
+
+.hidden { display: none; }
+.feedback { margin-top: 20px; padding: 15px; border-radius: 8px; font-weight: bold; }
+.feedback.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.feedback.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.feedback.info { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+
+/* 排行榜表格 */
+.leaderboard { width: 100%; border-collapse: collapse; text-align: left; }
+.leaderboard th, .leaderboard td { padding: 15px; border-bottom: 1px solid #eee; }
+.leaderboard th { background: #f9f9f9; color: #555; }
