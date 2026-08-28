@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中一二語文互動宇宙</title>
-    
-    <!-- 🌟 最重要的兩行：載入 Firebase 引擎 (絕對不能刪) 🌟 -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,10 +14,7 @@
         <div class="login-box">
             <h2>🚀 語文互動宇宙</h2>
             <p>請登入以同步你的靈獸與備忘錄</p>
-            
-            <!-- Google 登入按鈕 -->
             <button class="btn-google" onclick="loginWithGoogle()">
-                <!-- 換成絕對不會失效的 SVG Logo -->
                 <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -29,9 +23,7 @@
                 </svg>
                 學校 Google 帳號登入
             </button>
-
             <div class="separator"><span>或使用手動登入</span></div>
-
             <div class="manual-login">
                 <input type="text" id="username-input" placeholder="輸入學號 (如: student1)">
                 <input type="password" id="password-input" placeholder="密碼 (預設: 123456)">
@@ -40,7 +32,6 @@
         </div>
     </div>
 
-    <!-- 底部 iPad/手機 專用螢光筆提示欄 -->
     <div id="mobile-highlight-bar" class="mobile-highlight-bar hidden">
         <div class="highlight-bar-content">
             <span class="highlight-preview">「<span id="highlight-text-preview"></span>」</span>
@@ -49,7 +40,6 @@
         </div>
     </div>
 
-    <!-- 儀表板 -->
     <div id="dashboard" class="dashboard hidden">
         <nav class="sidebar">
             <div class="logo">🚀 語文宇宙</div>
@@ -63,6 +53,9 @@
                 <button class="btn-logout" onclick="logout()">登出 ➔</button>
             </div>
             <ul class="nav-links">
+                <li class="nav-title">一、每日微挑戰</li>
+                <li><a href="#" onclick="switchTab('feature-1', event)">1. 成語大挑戰</a></li>
+                <li><a href="#" onclick="switchTab('feature-2', event)">2. 語病通緝令</a></li>
                 <li class="nav-title">閱讀與收集</li>
                 <li><a href="#" class="active" onclick="switchTab('feature-reading', event)">📖 散文閱讀 (支援iPad)</a></li>
                 <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬語文備忘錄</a></li>
@@ -70,6 +63,21 @@
         </nav>
 
         <main class="content">
+            
+            <!-- 模塊 1：成語挑戰 (動態載入) -->
+            <section id="feature-1" class="module hidden">
+                <h2>🎯 1. 成語大挑戰 (DSE 級別)</h2>
+                <!-- 這裡的內容會由 JavaScript 自動生成 -->
+                <div id="quiz-container-1"></div>
+            </section>
+
+            <!-- 模塊 2：語病通緝令 (動態載入) -->
+            <section id="feature-2" class="module hidden">
+                <h2>🕵️ 2. 語病通緝令 (DSE 級別)</h2>
+                <!-- 這裡的內容會由 JavaScript 自動生成 -->
+                <div id="quiz-container-2"></div>
+            </section>
+
             <section id="feature-reading" class="module active">
                 <h2>📖 閱讀：《背影》節錄 (朱自清)</h2>
                 <div class="card" id="article-content">
