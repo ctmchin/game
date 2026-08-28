@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中一二語文互動宇宙</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 左側導航欄 -->
+        <nav class="sidebar">
+            <div class="logo">🚀 語文宇宙</div>
+            
+            <div class="user-profile">
+                <div class="avatar" id="pet-avatar">🥚</div>
+                <div class="info">
+                    <span class="name">同學 A</span>
+                    <span class="level" id="pet-level">文字幼苗 (Lv.1)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="exp-bar" style="width: 10%;"></div>
+                </div>
+                <span class="points">積分: <span id="score">10</span></span>
+            </div>
+
+            <ul class="nav-links">
+                <li class="nav-title">一、每日微挑戰</li>
+                <li><a href="#" class="active" onclick="switchTab('feature-1', event)">1. 修辭大挑戰</a></li>
+                <li><a href="#" onclick="switchTab('feature-2', event)">2. 語病通緝令</a></li>
+                
+                <li class="nav-title">二、文言文專區</li>
+                <li><a href="#" onclick="switchTab('feature-3', event)">3. 古人表情包</a></li>
+                <li><a href="#" onclick="switchTab('feature-4', event)">4. 古今譯配對</a></li>
+                <li><a href="#" onclick="switchTab('feature-5', event)">5. 一詞多義怪獸</a></li>
+                <li><a href="#" onclick="switchTab('feature-6', event)">6. 大家來找碴</a></li>
+                <li><a href="#" onclick="switchTab('feature-7', event)">7. 古代時空地圖</a></li>
+
+                <li class="nav-title">三、寫作思維訓練</li>
+                <li><a href="#" onclick="switchTab('feature-16', event)">16. 題目立意偵探</a></li>
+                <li><a href="#" onclick="switchTab('feature-17', event)">17. 記描抒取材裁判</a></li>
+                <li><a href="#" onclick="switchTab('feature-18', event)">18. 邏輯大法官</a></li>
+
+                <li class="nav-title">四、社群與共創</li>
+                <li><a href="#" onclick="switchTab('feature-8', event)">8. 佳句提煉牆</a></li>
+                <li><a href="#" onclick="switchTab('feature-9', event)">9. 修辭改寫沙盒</a></li>
+                <li><a href="#" onclick="switchTab('feature-10', event)">10. 文字接龍小說</a></li>
+                <li><a href="#" onclick="switchTab('feature-11', event)">11. AI 魔法畫廊</a></li>
+
+                <li class="nav-title">五、工具與激勵</li>
+                <li><a href="#" onclick="switchTab('feature-12', event)">12. 靈獸成長系統</a></li>
+                <li><a href="#" onclick="switchTab('feature-13', event)">13. 抽卡盲盒</a></li>
+                <li><a href="#" onclick="switchTab('feature-14', event)">14. 榮譽排行榜</a></li>
+                <li><a href="#" onclick="switchTab('feature-15', event)">15. 專屬語文備忘錄</a></li>
+            </ul>
+        </nav>
+
+        <!-- 右側主要內容區 -->
+        <main class="content">
+            
+            <!-- 模塊 1：修辭 -->
+            <section id="feature-1" class="module active">
+                <h2>🎯 1. 修辭大挑戰</h2>
+                <div class="card">
+                    <p class="question">將「這間教室很小」改為誇張句：</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-1', '錯了', '誇張需放大或縮小', 0)">A. 教室小得像房間</button>
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-1', '答對了！極度縮小！', '', 20)">B. 教室比手掌還小</button>
+                    </div>
+                    <div id="feedback-1" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 2：語病 -->
+            <section id="feature-2" class="module hidden">
+                <h2>🕵️ 2. 語病通緝令</h2>
+                <div class="card">
+                    <p class="question">找出以下句子的語病：「他那親切的笑容和聲音，時常浮現在我眼前。」</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-2', '正確！聲音不能浮現眼前 (搭配不當)。', '', 20)">A. 聲音不能浮現</button>
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-2', '', '笑容是可以浮現的', 0)">B. 笑容不能浮現</button>
+                    </div>
+                    <div id="feedback-2" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 3：表情包 -->
+            <section id="feature-3" class="module hidden">
+                <h2>🎭 3. 古人表情包</h2>
+                <div class="card">
+                    <p class="question">如果朋友考試拿了滿分，你要發一張「讚嘆」的圖，配哪句文言文最適合？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-3', '', '這句是哀傷的', 0)">A. 臨表涕零</button>
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-3', '正確！適合驚嘆他人才能。', '', 20)">B. 嘆為觀止</button>
+                    </div>
+                    <div id="feedback-3" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 4：古今譯配對 -->
+            <section id="feature-4" class="module hidden">
+                <h2>🔗 4. 古今譯配對</h2>
+                <div class="card">
+                    <p class="question">文言文的「走」，現代漢語的意思是？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-4', '正確！古人說走就是跑。', '', 20)">A. 跑</button>
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-4', '', '古代步才是步行', 0)">B. 步行</button>
+                    </div>
+                    <div id="feedback-4" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 5：一詞多義 -->
+            <section id="feature-5" class="module hidden">
+                <h2>⚔️ 5. 一詞多義打怪</h2>
+                <div class="card">
+                    <p class="question">「輟耕之壟上」的「之」字解釋為？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-5', '正確！這裡是動詞(去、往)。', '', 20)">A. 前往</button>
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-5', '', '這裡不是助詞', 0)">B. 的</button>
+                    </div>
+                    <div id="feedback-5" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 6：找碴 -->
+            <section id="feature-6" class="module hidden">
+                <h2>🔍 6. 大家來找碴</h2>
+                <div class="card">
+                    <p class="question">「率妻子邑人來此絕境」，「妻子」在古代指？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-6', '正確！', '', 20)">A. 妻子與兒女</button>
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-6', '', '這是現代意思', 0)">B. 僅指配偶</button>
+                    </div>
+                    <div id="feedback-6" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 7：時空地圖 -->
+            <section id="feature-7" class="module hidden">
+                <h2>🗺️ 7. 古代時空地圖</h2>
+                <div class="card">
+                    <p class="question">【桃花源記關卡】漁人進入洞口後，看到了甚麼景象？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-7', '正確！豁然開朗。', '', 20)">A. 土地平曠，屋舍儼然</button>
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-7', '', '這不是桃花源的景色', 0)">B. 崇山峻嶺，茂林修竹</button>
+                    </div>
+                    <div id="feedback-7" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 16：立意偵探 -->
+            <section id="feature-16" class="module hidden">
+                <h2>🕵️ 16. 題目立意偵探</h2>
+                <div class="card">
+                    <p class="question">題目《窗外》，哪個立意最深刻？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-16', '', '流於表面', 0)">A. 描寫窗外四季風景</button>
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-16', '精準！藉景抒情且昇華了主題。', '', 30)">B. 藉觀察窗外清潔工，領悟社會默默付出者的偉大</button>
+                    </div>
+                    <div id="feedback-16" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 17：取材裁判 -->
+            <section id="feature-17" class="module hidden">
+                <h2>⚖️ 17. 記描抒取材裁判</h2>
+                <div class="card">
+                    <p class="question">主題「母愛的偉大」，哪個素材最能感動讀者？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-17', '', '過於俗套陳舊', 0)">A. 生病時媽媽徹夜照顧我</button>
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-17', '正確！細節獨特且貼近現代生活。', '', 30)">B. 不懂電腦的媽媽為了幫我查資料，用一指禪打字到深夜</button>
+                    </div>
+                    <div id="feedback-17" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 模塊 18：邏輯大法官 -->
+            <section id="feature-18" class="module hidden">
+                <h2>📜 18. 議論文邏輯大法官</h2>
+                <div class="card">
+                    <p class="question">論點：「挫折能激發潛能」。論據：「司馬遷受宮刑寫史記」。哪段論證邏輯最嚴密？</p>
+                    <div class="options">
+                        <button class="btn-option" onclick="handleQuiz(this, false, 'feedback-18', '', '油水分離，沒有扣緊挫折', 0)">A. 司馬遷很偉大，我們應該學習他讀歷史。</button>
+                        <button class="btn-option" onclick="handleQuiz(this, true, 'feedback-18', '完美！緊扣挫折與潛能的關係。', '', 30)">B. 司馬遷遭遇極大挫折，但他將悲憤化為動力，證明了逆境能激發潛能。</button>
+                    </div>
+                    <div id="feedback-18" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 社群與共創類 (模擬提交) -->
+            <section id="feature-8" class="module hidden">
+                <h2>📚 8. 佳句提煉牆</h2>
+                <div class="card">
+                    <p>今日散文：《背影》</p>
+                    <textarea class="text-input" id="quote-input" placeholder="摘錄你最喜歡的一句..."></textarea>
+                    <button class="btn-primary" onclick="submitText('quote-input', '你的佳句已發佈上牆！積分 +10', 10)">發佈佳句</button>
+                </div>
+            </section>
+
+            <section id="feature-9" class="module hidden">
+                <h2>✍️ 9. 修辭改寫沙盒</h2>
+                <div class="card">
+                    <p>挑戰：將「風吹過樹梢」加入擬人法</p>
+                    <textarea class="text-input" id="rewrite-input" placeholder="寫下你的創意改寫..."></textarea>
+                    <button class="btn-primary" onclick="submitText('rewrite-input', '改寫已提交，等待同學點讚！積分 +15', 15)">提交改寫</button>
+                </div>
+            </section>
+
+            <section id="feature-10" class="module hidden">
+                <h2>📖 10. 文字接龍小說</h2>
+                <div class="card">
+                    <p>昨日劇情：我們在操場發現一個寶箱...</p>
+                    <textarea class="text-input" id="story-input" placeholder="接下來發生了甚麼？"></textarea>
+                    <button class="btn-primary" onclick="submitText('story-input', '接龍已提交！積分 +20', 20)">提交劇情</button>
+                </div>
+            </section>
+
+            <section id="feature-11" class="module hidden">
+                <h2>🎨 11. AI 魔法畫廊</h2>
+                <div class="card">
+                    <p>請用 30 字詳細描寫一隻怪獸：</p>
+                    <textarea class="text-input" id="ai-input" placeholder="例如：一隻長著三隻紫色眼睛的冰焰巨龍..."></textarea>
+                    <button class="btn-primary" onclick="generateAI()">🔮 施展魔法生成圖片</button>
+                    <div id="ai-result" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <!-- 系統與工具類 -->
+            <section id="feature-12" class="module hidden">
+                <h2>🐉 12. 靈獸成長系統</h2>
+                <div class="card">
+                    <h3 style="text-align: center; margin-bottom: 20px;">你的靈獸進度</h3>
+                    <div style="font-size: 5rem; text-align: center;" id="big-pet">🥚</div>
+                    <p style="text-align: center; margin-top: 10px;">目前狀態：準備破殼中 (需 100 積分)</p>
+                </div>
+            </section>
+
+            <section id="feature-13" class="module hidden">
+                <h2>🎁 13. 抽卡盲盒</h2>
+                <div class="card">
+                    <p>每次抽卡消耗 50 積分。</p>
+                    <button class="btn-primary" onclick="drawGacha()">🎲 點擊抽卡</button>
+                    <div id="gacha-result" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <section id="feature-14" class="module hidden">
+                <h2>🏆 14. 榮譽排行榜</h2>
+                <div class="card">
+                    <table class="leaderboard">
+                        <tr><th>排名</th><th>同學</th><th>等級</th><th>積分</th></tr>
+                        <tr><td>1</td><td>陳大文</td><td>散文大師</td><td>850</td></tr>
+                        <tr><td>2</td><td>李小明</td><td>修辭小獸</td><td>420</td></tr>
+                        <tr><td>3</td><td>你</td><td>文字幼苗</td><td><span id="rank-score">10</span></td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <section id="feature-15" class="module hidden">
+                <h2>📝 15. 專屬語文備忘錄</h2>
+                <div class="card">
+                    <p>記下你遇到的好詞好句，作為作文素材庫：</p>
+                    <textarea class="text-input" id="memo-input" placeholder="輸入你想記住的素材..."></textarea>
+                    <button class="btn-primary" onclick="saveMemo()">💾 儲存筆記</button>
+                    <div id="memo-list" style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                        <p style="color: #888;">暫無筆記</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
