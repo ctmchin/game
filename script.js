@@ -12,25 +12,38 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // ========================================================
-// 2. 帳號與登入邏輯
+// 2. 帳號狀態持久化 (解決 Refresh 需重新登入的問題)
 // ========================================================
 let currentUser = null;
 let memos = [];
-let userScore = 0; // 新增積分變數
+let userScore = 0;
+
+// 監聽登入狀態：刷新網頁也不會登出
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        handleLoginSuccess({ displayName: user.displayName, uid: user.uid });
+    } else {
+        const savedManualUser = sessionStorage.getItem('manualUser');
+        if (savedManualUser) {
+            handleLoginSuccess(JSON.parse(savedManualUser));
+        } else {
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+    }
+});
 
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().languageCode = 'zh-HK'; 
-    firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-            handleLoginSuccess({ displayName: result.user.displayName, uid: result.user.uid });
-        }).catch((error) => alert("登入失敗: " + error.message));
+    firebase.auth().signInWithPopup(provider).catch((error) => alert("登入失敗: " + error.message));
 }
 
 function loginManually() {
     const username = document.getElementById('username-input').value.trim();
     if (username !== "") {
-        handleLoginSuccess({ displayName: username + " (手動)", uid: username });
+        const userObj = { displayName: username + " (手動)", uid: username };
+        sessionStorage.setItem('manualUser', JSON.stringify(userObj)); 
+        handleLoginSuccess(userObj);
     } else {
         alert("請輸入學號！");
     }
@@ -42,10 +55,12 @@ function handleLoginSuccess(user) {
     document.getElementById('dashboard').classList.remove('hidden');
     document.getElementById('user-display-name').innerText = user.displayName;
     loadMemos(user.uid);
-    renderQuizzes(); // 登入後自動載入題目
+    renderQuizzes(); 
 }
 
 function logout() {
+    firebase.auth().signOut();
+    sessionStorage.removeItem('manualUser');
     currentUser = null;
     document.getElementById('dashboard').classList.add('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
@@ -59,7 +74,7 @@ function switchTab(tabId, event) {
 }
 
 // ========================================================
-// 3. 螢光筆與備忘錄系統
+// 3. 螢光筆與備忘錄系統 (顯示開頭...結尾)
 // ========================================================
 let pendingSelectedText = "";
 const mobileBar = document.getElementById('mobile-highlight-bar');
@@ -69,8 +84,16 @@ document.addEventListener('selectionchange', function() {
     const selectedStr = selection.toString().trim();
     if (selectedStr.length > 0 && isSelectionInsideArticle(selection)) {
         pendingSelectedText = selectedStr;
-        document.getElementById('highlight-text-preview').innerText = selectedStr.substring(0, 15) + "...";
+        
+        // 優化顯示：保留前 8 字與後 4 字
+        let displayStr = selectedStr;
+        if (selectedStr.length > 15) {
+            displayStr = selectedStr.substring(0, 8) + " ... " + selectedStr.substring(selectedStr.length - 4);
+        }
+        document.getElementById('highlight-text-preview').innerText = displayStr;
         mobileBar.classList.remove('hidden');
+    } else {
+        mobileBar.classList.add('hidden');
     }
 });
 
@@ -114,96 +137,54 @@ function loadMemos(uid) {
 }
 
 // ========================================================
-// 4. 動態題庫引擎 (老師未來只需在這裡加題目)
+// 4. 動態題庫引擎 (測試版 10 題，確認不崩潰)
 // ========================================================
-
-// 模塊 1：成語題庫
 const idiomsData = [
     {
         question: "【炙手可熱】請判斷以下哪一個句子正確使用了此成語？",
         options: [
-            "A. 今年的夏天特別炎熱，走出冷氣房，外面簡直是炙手可熱。",
-            "B. 這款最新推出的智能手機設計新穎，在市場上炙手可熱。",
-            "C. 這位新晉歌手的演唱會門票炙手可熱，一票難求。",
-            "D. 丞相目前在朝廷中炙手可熱，百官都爭相討好他。"
+            "A. 夏天特別炎熱，走出冷氣房外面簡直是炙手可熱。",
+            "B. 這款智能手機設計新穎，在市場上炙手可熱。",
+            "C. 這位歌手的演唱會門票炙手可熱，一票難求。",
+            "D. 丞相目前在朝廷中炙手可熱，百官爭相討好。"
         ],
-        correctIndex: 3, // D是正確答案 (陣列從0開始數)
-        explanation: "✅ 正確！【炙手可熱】比喻權勢極大，氣焰很盛。注意，這是一個帶有貶義的成語，不可用於天氣熱或商品/事物受歡迎！"
+        correctIndex: 3,
+        explanation: "✅ 正確！【炙手可熱】比喻權勢大、氣焰盛，帶貶義。不可用於天氣熱或商品受歡迎！"
+    },
+    {
+        question: "【萬人空巷】請判斷以下哪一個句子正確使用了此成語？",
+        options: [
+            "A. 疫情嚴重期間，街上萬人空巷，冷冷清清毫無人氣。",
+            "B. 新年煙花匯演吸引了無數市民，海傍一帶萬人空巷。",
+            "C. 這座廢棄的古城已經萬人空巷，只剩下斷壁殘垣。",
+            "D. 颱風即將來襲，商店關門，鬧市區頓時萬人空巷。"
+        ],
+        correctIndex: 1,
+        explanation: "✅ 正確！【萬人空巷】指成千上萬的人湧向某處，導致「巷子空了」。這是形容「極度熱鬧」，常被誤用為「冷清」。"
+    },
+    {
+        question: "【首當其衝】請判斷以下哪一個句子正確使用了此成語？",
+        options: [
+            "A. 金融海嘯來襲，依賴出口的製造業首當其衝受到重創。",
+            "B. 學校舉辦徵文比賽，他首當其衝報名參加，非常積極。",
+            "C. 當大家都不知所措時，班長首當其衝提出了解決方案。",
+            "D. 在推廣環保政策上，政府部門應該首當其衝做好榜樣。"
+        ],
+        correctIndex: 0,
+        explanation: "✅ 正確！【首當其衝】指最先受到攻擊或遭遇災難。常被誤用為「首先、帶頭去做某事」。"
+    },
+    {
+        question: "【空穴來風】請判斷以下哪一個句子正確使用了此成語？",
+        options: [
+            "A. 這座山谷裡的風很大，常常能聽到空穴來風的聲音。",
+            "B. 他說的那些關於公司倒閉的傳言，完全是空穴來風。",
+            "C. 警方經過調查，證實這則駭人聽聞的消息並非空穴來風。",
+            "D. 他的想法總是空穴來風，充滿了天馬行空的想像力。"
+        ],
+        correctIndex: 2,
+        explanation: "✅ 正確！【空穴來風】原指有孔洞便會進風，比喻「傳言有根據、事出有因」。現常被誤用為「毫無根據」。"
     },
     {
         question: "【差強人意】請判斷以下哪一個句子正確使用了此成語？",
         options: [
-            "A. 這次考試他的成績退步了很多，真是令人差強人意。",
-            "B. 雖然這部電影的特效一般，但劇情還算差強人意。",
-            "C. 他做事總是馬馬虎虎，表現實在是太差強人意了。",
-            "D. 經過多次修改，這份報告依然差強人意，不被接納。"
-        ],
-        correctIndex: 1,
-        explanation: "✅ 正確！【差強人意】是指「大體上還能使人滿意」，是褒義（偏中性）詞。很多學生會誤以為是「不能令人滿意」。"
-    }
-];
-
-// 模塊 2：語病題庫
-const grammarData = [
-    {
-        question: "請找出並修正以下句子的語病：「由於連日暴雨，使到低窪地區發生了嚴重的水浸。」",
-        options: [
-            "A. 缺少主語：應刪去「由於」或「使到」。",
-            "B. 搭配不當：「發生」不能搭配「水浸」。",
-            "C. 詞語冗贅：「嚴重」和「水浸」意思重複。",
-            "D. 邏輯矛盾：「連日暴雨」不會導致「水浸」。"
-        ],
-        correctIndex: 0,
-        explanation: "✅ 正確！這是典型的「濫用介詞導致主語缺失」。用了「由於」又用「使到」，整句話就找不到主角了。"
-    }
-];
-
-// 渲染題目的函數
-function renderQuizzes() {
-    renderQuizBlock('quiz-container-1', idiomsData, 'idioms');
-    renderQuizBlock('quiz-container-2', grammarData, 'grammar');
-}
-
-function renderQuizBlock(containerId, dataArray, quizType) {
-    const container = document.getElementById(containerId);
-    let html = '';
-    
-    dataArray.forEach((q, index) => {
-        html += `
-        <div class="card" style="margin-bottom: 20px;">
-            <p class="question"><strong>第 ${index + 1} 題：</strong>${q.question}</p>
-            <div class="options">
-                ${q.options.map((opt, optIndex) => `
-                    <button class="btn-option" onclick="checkAnswer(this, ${optIndex === q.correctIndex}, '${q.explanation}')">${opt}</button>
-                `).join('')}
-            </div>
-            <div class="feedback hidden" style="margin-top:15px;"></div>
-        </div>`;
-    });
-    
-    container.innerHTML = html;
-}
-
-// 檢查答案與計分
-function checkAnswer(btn, isCorrect, explanation) {
-    const parent = btn.parentElement;
-    const feedback = parent.nextElementSibling;
-    
-    // 鎖定所有選項
-    parent.querySelectorAll('.btn-option').forEach(b => b.disabled = true);
-    
-    feedback.classList.remove('hidden');
-    if (isCorrect) {
-        btn.style.backgroundColor = '#d4edda';
-        btn.style.borderColor = '#28a745';
-        feedback.className = 'feedback success';
-        feedback.innerHTML = explanation + "<br><br>🌟 獲得 20 積分！";
-        userScore += 20;
-        document.getElementById('score').innerText = userScore;
-    } else {
-        btn.style.backgroundColor = '#f8d7da';
-        btn.style.borderColor = '#dc3545';
-        feedback.className = 'feedback error';
-        feedback.innerHTML = "❌ 答錯了！<br><br>" + explanation;
-    }
-}
+            "A. 這次考試他的成績退步了很多，真是令人差強人意。"
