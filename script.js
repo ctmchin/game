@@ -1,5 +1,5 @@
 // ========================================================
-// 1. FIREBASE 老師專屬設定 (已填入 ctm-game 專案金鑰)
+// 1. FIREBASE 老師專屬設定 (ctm-game)
 // ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I",
@@ -10,7 +10,7 @@ const firebaseConfig = {
     appId: "1:204941638255:web:f23470bb681e9dac6eeb9a"
 };
 
-// 初始化 Firebase
+// 初始化 Firebase (使用瀏覽器相容寫法，請勿使用 import)
 firebase.initializeApp(firebaseConfig);
 
 // ========================================================
@@ -22,10 +22,9 @@ let memos = [];
 // A. 真正的 Google 帳號登入
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    
-    // 設定語言為繁體中文
     firebase.auth().languageCode = 'zh-HK'; 
     
+    // 呼叫彈出視窗
     firebase.auth().signInWithPopup(provider)
         .then((result) => {
             const user = result.user;
@@ -35,15 +34,11 @@ function loginWithGoogle() {
                 role: "student"
             });
         }).catch((error) => {
-            if (error.code === 'auth/operation-not-allowed') {
-                alert("⚠️ 錯誤：老師尚未在 Firebase 後台啟用「Google 登入」功能，請參考我的下一步指示！");
-            } else {
-                alert("登入失敗: " + error.message);
-            }
+            alert("登入失敗: " + error.message);
         });
 }
 
-// B. 預設的手動/教師帳號登入 (免設定，隨時可用)
+// B. 預設的手動/教師帳號登入 (備用)
 const presetAccounts = {
     "admin": { name: "陳老師 (管理員)", role: "teacher" },
     "student1": { name: "中一A 李德華", role: "student" },
@@ -54,11 +49,6 @@ function loginManually() {
     const username = document.getElementById('username-input').value.trim();
     const password = document.getElementById('password-input').value;
 
-    if (username === "" || password === "") {
-        alert("請輸入帳號和密碼！");
-        return;
-    }
-
     if (presetAccounts[username] && password === "123456") {
         handleLoginSuccess({
             displayName: presetAccounts[username].name,
@@ -66,7 +56,7 @@ function loginManually() {
             role: presetAccounts[username].role
         });
     } else {
-        alert("❌ 帳號或密碼錯誤！(測試密碼均為: 123456)");
+        alert("❌ 帳號或密碼錯誤！(測試學號: student1，密碼: 123456)");
     }
 }
 
@@ -129,7 +119,7 @@ function closeHighlightBar() {
 }
 
 // ========================================================
-// 4. 備忘錄儲存邏輯 (基於本機 LocalStorage，依使用者隔離)
+// 4. 備忘錄儲存邏輯 (依使用者隔離)
 // ========================================================
 function saveMemo(text) {
     const now = new Date();
