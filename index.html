@@ -31,18 +31,16 @@
         </div>
     </div>
 
+    <!-- 手機側邊欄遮罩 -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- 螢光筆提示欄 (已修復標籤閉合問題) -->
+    <!-- 螢光筆提示欄 -->
     <div id="mobile-highlight-bar" class="mobile-highlight-bar hidden">
         <div class="highlight-bar-content">
             <span class="highlight-preview">「<span id="highlight-text-preview" style="color:#d32f2f; font-weight:bold;"></span>」</span>
             <button class="btn-save-highlight" onclick="confirmSaveHighlight()">🖍️ 儲存至備忘錄</button>
             <button class="btn-close-bar" onclick="closeHighlightBar()">✕</button>
-        </div>
-    </div>
-
-    <!-- 儀表板 -->
+        </div><!-- 儀表板 -->
     <div id="dashboard" class="dashboard hidden">
         <nav class="sidebar">
             <div class="logo">🚀 語文宇宙</div>
@@ -81,25 +79,28 @@
                 <h3 class="mobile-title">語文宇宙</h3>
             </div>
 
-            <section id="feature-1" class="module hidden"><h2>🎯 1. 成語大挑戰</h2><div id="quiz-container-1"></div></section>
-            <section id="feature-2" class="module hidden"><h2>🕵️ 2. 語病通緝令</h2><div id="quiz-container-2"></div></section>
+            <!-- 模塊 1、2：語文基礎 -->
+            <section id="feature-1" class="module hidden"><h2>🎯 1. 成語大挑戰 (DSE 級別)</h2><div id="quiz-container-1"></div></section>
+            <section id="feature-2" class="module hidden"><h2>🕵️ 2. 語病通緝令 (DSE 級別)</h2><div id="quiz-container-2"></div></section>
 
+            <!-- 模塊 3、6：文言文 -->
             <section id="feature-3" class="module active">
                 <h2>🎭 3. 古人表情包 (Meme)</h2>
                 <p style="margin-bottom: 20px; color: #555;">如果古人也有 WhatsApp，他們會發什麼圖？選出最配表情的文言文！</p>
                 <div id="quiz-container-3"></div>
             </section>
-            
             <section id="feature-6" class="module hidden">
                 <h2>🔍 6. 古今異義找碴</h2>
-                <p style="margin-bottom: 20px; color: #555;">找出文言文中與現代意思完全不同的「雙面間諜」。</p>
+                <p style="margin-bottom: 20px; color: #555;">拒絕現代語感干擾！找出文言文中與現代意思完全不同的「雙面間諜」。</p>
                 <div id="quiz-container-6"></div>
             </section>
 
+            <!-- 模塊 16、17、18：寫作思維 -->
             <section id="feature-16" class="module hidden"><h2>🕵️‍♂️ 16. 題目立意偵探</h2><div id="quiz-container-16"></div></section>
             <section id="feature-17" class="module hidden"><h2>⚖️ 17. 記描抒取材裁判</h2><div id="quiz-container-17"></div></section>
             <section id="feature-18" class="module hidden"><h2>📜 18. 議論文邏輯大法官</h2><div id="quiz-container-18"></div></section>
 
+            <!-- 散文與備忘錄 -->
             <section id="feature-reading" class="module hidden">
                 <h2>📖 閱讀：《背影》全文節錄 (朱自清)</h2>
                 <div class="card" id="article-content">
@@ -110,7 +111,6 @@
                     </p>
                 </div>
             </section>
-            
             <section id="feature-15" class="module hidden">
                 <h2>📝 15. 專屬語文備忘錄</h2>
                 <div class="card"><div id="memo-list" class="memo-container"><p style="color: #888; text-align: center;">暫無筆記</p></div></div>
