@@ -24,14 +24,33 @@ body { background-color: #f4f7f6; color: #333; -webkit-user-select: text; user-s
 
 /* 基礎佈局 */
 .dashboard { display: flex; height: 100vh; overflow: hidden; }
-.sidebar { width: 280px; background-color: #fff; border-right: 1px solid #e1e8ed; display: flex; flex-direction: column; overflow-y: auto; }
+
+/* 🌟 選單滑動修復區 🌟 */
+.sidebar { 
+    width: 280px; 
+    background-color: #fff; 
+    border-right: 1px solid #e1e8ed; 
+    display: flex; 
+    flex-direction: column; 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; /* 修復 iOS 卡死的問題 */
+}
+.nav-links { 
+    list-style: none; 
+    padding: 10px 0; 
+    padding-bottom: 80px; /* 底部留白，避免選單被切斷 */
+    flex: 1; 
+    overflow-y: auto; 
+}
+
 .logo { font-size: 1.5rem; font-weight: bold; padding: 20px; text-align: center; border-bottom: 1px solid #eee; }
 .user-profile { padding: 20px; background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; text-align: center; }
-.nav-links { list-style: none; padding: 10px 0; }
 .nav-title { padding: 15px 20px 5px; font-size: 0.85rem; color: #888; font-weight: bold; }
 .nav-links li a { display: block; padding: 10px 20px; text-decoration: none; color: #555; }
 .nav-links li a:hover, .nav-links li a.active { background-color: #e3f2fd; color: #1976d2; border-left: 4px solid #1976d2; }
-.content { flex: 1; padding: 40px; overflow-y: auto; }
+.content { flex: 1; padding: 40px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+/* 模塊切換動畫 */
 .module { display: none; }
 .module.active { display: block; animation: fadeIn 0.3s; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -53,7 +72,7 @@ body { background-color: #f4f7f6; color: #333; -webkit-user-select: text; user-s
 .memo-item { background: #fffdf0; border-left: 4px solid #ffeb3b; padding: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .memo-time { font-size: 0.8rem; color: #999; margin-top: 5px; }
 
-/* ================= 手機版專屬設計 (漢堡選單) ================= */
+/* ================= 手機版專屬設計 ================= */
 .mobile-header { display: none; align-items: center; background: white; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; border-radius: 8px; }
 .mobile-menu-btn { font-size: 1.2rem; background: none; border: none; cursor: pointer; color: #1976d2; font-weight: bold; }
 .mobile-title { flex: 1; text-align: center; color: #333; font-weight: bold; margin-right: 20px; }
@@ -61,7 +80,7 @@ body { background-color: #f4f7f6; color: #333; -webkit-user-select: text; user-s
 
 @media (max-width: 768px) {
     .dashboard { flex-direction: column; }
-    .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; z-index: 1001; transition: left 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
+    .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; z-index: 1001; transition: left 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
     .sidebar.open { left: 0; }
     .sidebar-overlay.active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; }
     .mobile-header { display: flex; }
