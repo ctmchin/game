@@ -10,7 +10,6 @@
 </head>
 <body>
     
-    <!-- 🌟 關鍵修復：這裡已經徹底移除了 hidden，一打開網頁必定顯示！ 🌟 -->
     <div id="login-screen" class="login-screen">
         <div class="login-box">
             <h2>🚀 語文互動宇宙</h2>
@@ -45,8 +44,8 @@
         </div>
     </div>
 
-    <!-- 儀表板主體 -->
     <div id="dashboard" class="dashboard hidden">
+        <!-- 側邊選單 -->
         <nav class="sidebar">
             <div class="logo">🚀 語文宇宙</div>
             <div class="user-profile">
@@ -85,21 +84,22 @@
                 <h3 class="mobile-title">語文宇宙</h3>
             </div>
 
-            <section id="feature-1" class="module hidden"><h2>🎯 1. 成語大挑戰</h2><div id="quiz-container-1"></div></section>
-            <section id="feature-2" class="module hidden"><h2>🕵️ 2. 語病通緝令</h2><div id="quiz-container-2"></div></section>
+            <!-- ⚠️ 這裡已經把 hidden 拿掉了，只保留 module，這樣 CSS 切換 active 才會生效 -->
+            <section id="feature-1" class="module"><h2>🎯 1. 成語大挑戰</h2><div id="quiz-container-1"></div></section>
+            <section id="feature-2" class="module"><h2>🕵️ 2. 語病通緝令</h2><div id="quiz-container-2"></div></section>
 
-            <section id="feature-3" class="module hidden">
+            <section id="feature-3" class="module">
                 <h2>🎭 3. 古人表情包 (Meme)</h2>
                 <div id="quiz-container-3"></div>
             </section>
-            <section id="feature-6" class="module hidden">
+            <section id="feature-6" class="module">
                 <h2>🔍 6. 古今異義找碴</h2>
                 <div id="quiz-container-6"></div>
             </section>
 
-            <section id="feature-16" class="module hidden"><h2>🕵️‍♂️ 16. 題目立意偵探</h2><div id="quiz-container-16"></div></section>
-            <section id="feature-17" class="module hidden"><h2>⚖️ 17. 記描抒取材裁判</h2><div id="quiz-container-17"></div></section>
-            <section id="feature-18" class="module hidden"><h2>📜 18. 議論文邏輯大法官</h2><div id="quiz-container-18"></div></section>
+            <section id="feature-16" class="module"><h2>🕵️‍♂️ 16. 題目立意偵探</h2><div id="quiz-container-16"></div></section>
+            <section id="feature-17" class="module"><h2>⚖️ 17. 記描抒取材裁判</h2><div id="quiz-container-17"></div></section>
+            <section id="feature-18" class="module"><h2>📜 18. 議論文邏輯大法官</h2><div id="quiz-container-18"></div></section>
 
             <section id="feature-reading" class="module active">
                 <h2>📖 閱讀：《背影》全文節錄 (朱自清)</h2>
@@ -112,12 +112,13 @@
                 </div>
             </section>
             
-            <section id="feature-15" class="module hidden">
+            <section id="feature-15" class="module">
                 <h2>📝 15. 專屬語文備忘錄</h2>
                 <div class="card"><div id="memo-list" class="memo-container"><p style="color: #888; text-align: center;">暫無筆記</p></div></div>
             </section>
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
