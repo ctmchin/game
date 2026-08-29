@@ -31,7 +31,10 @@
         </div>
     </div>
 
-    <!-- 底部 iPad/手機 專用螢光筆提示欄 -->
+    <!-- 手機側邊欄遮罩 -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- 螢光筆提示欄 -->
     <div id="mobile-highlight-bar" class="mobile-highlight-bar hidden">
         <div class="highlight-bar-content">
             <span class="highlight-preview">「<span id="highlight-text-preview" style="color:#d32f2f; font-weight:bold;"></span>」</span>
@@ -40,11 +43,8 @@
         </div>
     </div>
 
-    <!-- 手機版側邊欄遮罩 -->
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
+    <!-- 儀表板 -->
     <div id="dashboard" class="dashboard hidden">
-        <!-- 側邊導航欄 -->
         <nav class="sidebar">
             <div class="logo">🚀 語文宇宙</div>
             <div class="user-profile">
@@ -57,11 +57,17 @@
                 <button class="btn-logout" onclick="logout()">登出 ➔</button>
             </div>
             <ul class="nav-links">
-                <li class="nav-title">一、每日微挑戰</li>
+                <li class="nav-title">一、語文基礎每日挑戰</li>
                 <li><a href="#" onclick="switchTab('feature-1', event)">1. 成語大挑戰</a></li>
                 <li><a href="#" onclick="switchTab('feature-2', event)">2. 語病通緝令</a></li>
-                <li class="nav-title">閱讀與收集</li>
-                <li><a href="#" class="active" onclick="switchTab('feature-reading', event)">📖 散文閱讀</a></li>
+                
+                <li class="nav-title">二、寫作思維訓練</li>
+                <li><a href="#" class="active" onclick="switchTab('feature-16', event)">16. 題目立意偵探</a></li>
+                <li><a href="#" onclick="switchTab('feature-17', event)">17. 取材大裁判</a></li>
+                <li><a href="#" onclick="switchTab('feature-18', event)">18. 邏輯大法官</a></li>
+
+                <li class="nav-title">三、閱讀與收集</li>
+                <li><a href="#" onclick="switchTab('feature-reading', event)">📖 散文閱讀</a></li>
                 <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬語文備忘錄</a></li>
             </ul>
         </nav>
@@ -73,38 +79,45 @@
                 <h3 class="mobile-title">語文宇宙</h3>
             </div>
 
-            <!-- 模塊 1：成語挑戰 (已移除 hidden) -->
-            <section id="feature-1" class="module">
+            <!-- 模塊 1、2：語文基礎 -->
+            <section id="feature-1" class="module hidden">
                 <h2>🎯 1. 成語大挑戰 (DSE 級別)</h2>
                 <div id="quiz-container-1"></div>
             </section>
-
-            <!-- 模塊 2：語病通緝令 (已移除 hidden) -->
-            <section id="feature-2" class="module">
+            <section id="feature-2" class="module hidden">
                 <h2>🕵️ 2. 語病通緝令 (DSE 級別)</h2>
                 <div id="quiz-container-2"></div>
             </section>
 
-            <!-- 散文閱讀區 -->
-            <section id="feature-reading" class="module active">
+            <!-- 模塊 16、17、18：寫作思維 -->
+            <section id="feature-16" class="module active">
+                <h2>🕵️‍♂️ 16. 題目立意偵探</h2>
+                <p style="margin-bottom: 20px; color: #555;">拒絕膚淺！找出能讓考官眼前一亮的「黃金立意」。</p>
+                <div id="quiz-container-16"></div>
+            </section>
+            <section id="feature-17" class="module hidden">
+                <h2>⚖️ 17. 記描抒取材裁判</h2>
+                <p style="margin-bottom: 20px; color: #555;">拒絕老土！找出最切合主題且細節動人的「黃金素材」。</p>
+                <div id="quiz-container-17"></div>
+            </section>
+            <section id="feature-18" class="module hidden">
+                <h2>📜 18. 議論文邏輯大法官</h2>
+                <p style="margin-bottom: 20px; color: #555;">拒絕油水分離！找出論點與論據之間最嚴密的「邏輯鏈」。</p>
+                <div id="quiz-container-18"></div>
+            </section>
+
+            <!-- 散文與備忘錄 -->
+            <section id="feature-reading" class="module hidden">
                 <h2>📖 閱讀：《背影》全文節錄 (朱自清)</h2>
                 <div class="card" id="article-content">
                     <p class="reading-p" style="line-height: 2; font-size: 1.15rem; color: #333; text-align: justify;">
                         我與父親不相見已有二年餘了，我最不能忘記的是他的背影。那年冬天，祖母死了，父親的差使也交卸了，正是禍不單行的日子，我從北京到徐州，打算跟著父親奔喪回家。到徐州見著父親，看見滿院狼藉的東西，又想起祖母，不禁簌簌地流下眼淚。父親說：「事已如此，不必難過，好在天無絕人之路！」<br><br>
-                        
-                        回家變賣典質，父親還了虧空；又借錢辦了喪事。這些日子，家中光景很是慘淡，一半為了喪事，一半為了父親賦閒。喪事完畢，父親要到南京謀事，我也要回北京念書，我們便同行。<br><br>
-                        
                         我們過了江，進了車站。我買票，他忙著照看行李。行李太多了，得向腳夫行些小費，纔可過去。他便又忙著和他們講價錢。我那時真是聰明過分，總覺他說話不大漂亮，非自己插嘴不可。但他終於講定了價錢；就送我上車。<br><br>
-                        
-                        我說道：「爸爸，你走吧。」他往車外看了看說：「我買幾個橘子去。你就在此地，不要走動。」我看那邊月台的柵欄外有幾個賣東西的等著顧客。走到那邊月台，須穿過鐵道，須跳下去又爬上去。父親是一個胖子，走過去自然要費事些。我本來要去的，他不肯，只好讓他去。<br><br>
-
-                        我看見他戴著黑布小帽，穿著黑布大馬褂，深青布棉袍，蹣跚地走到鐵道邊，慢慢探身下去，尚不大難。可是他穿過鐵道，要爬上那邊月台，就不容易了。他用兩手攀著上面，兩腳再向上縮；他肥胖的身子向左微傾，顯出努力的樣子。這時我看見他的背影，我的淚很快地流下來了。我趕緊拭乾了淚，怕他看見，也怕別人看見。
+                        我看見他戴著黑布小帽，穿著黑布大馬褂，深青布棉袍，蹣跚地走到鐵道邊，慢慢探身下去，尚不大難。可是他穿過鐵道，要爬上那邊月台，就不容易了。他用兩手攀著上面，兩腳再向上縮；他肥胖的身子向左微傾，顯出努力的樣子。這時我看見他的背影，我的淚很快地流下來了。
                     </p>
                 </div>
             </section>
-
-            <!-- 備忘錄區 (已移除 hidden) -->
-            <section id="feature-15" class="module">
+            <section id="feature-15" class="module hidden">
                 <h2>📝 15. 專屬語文備忘錄</h2>
                 <div class="card">
                     <div id="memo-list" class="memo-container">
