@@ -1,5 +1,5 @@
 // ========================================================
-// 1. FIREBASE 初始化與登入邏輯
+// 1. FIREBASE 初始化與登入
 // ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I",
@@ -32,13 +32,13 @@ function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
         firebase.auth().languageCode = 'zh-HK'; 
         firebase.auth().signInWithPopup(provider).catch((e) => alert("登入失敗: " + e.message));
-    } catch (e) { alert("無法連線，請使用手動登入！"); }
+    } catch (e) { alert("請使用手動登入！"); }
 }
 
 function loginManually() {
     const username = document.getElementById('username-input').value.trim();
     if (username !== "") {
-        const userObj = { displayName: username + " (手動)", uid: username };
+        const userObj = { displayName: username + " (學生)", uid: username };
         sessionStorage.setItem('manualUser', JSON.stringify(userObj)); 
         handleLoginSuccess(userObj);
     } else { alert("請輸入學號！"); }
@@ -51,6 +51,7 @@ function handleLoginSuccess(user) {
     document.getElementById('user-display-name').innerText = user.displayName;
     loadMemos(user.uid);
     renderQuizzes(); 
+    renderSocial(); // 載入社群留言牆
 }
 
 function logout() {
@@ -89,10 +90,7 @@ document.addEventListener('selectionchange', function() {
     const selectedStr = selection.toString().trim();
     if (selectedStr.length > 0 && isSelectionInsideArticle(selection)) {
         pendingSelectedText = selectedStr;
-        let displayStr = selectedStr;
-        if (selectedStr.length > 15) {
-            displayStr = selectedStr.substring(0, 8) + " ... " + selectedStr.substring(selectedStr.length - 4);
-        }
+        let displayStr = selectedStr.length > 15 ? selectedStr.substring(0, 8) + " ... " + selectedStr.substring(selectedStr.length - 4) : selectedStr;
         document.getElementById('highlight-text-preview').innerText = displayStr;
         mobileBar.classList.remove('hidden');
     } else {
@@ -118,18 +116,12 @@ function confirmSaveHighlight() {
         mobileBar.classList.add('hidden');
     }
 }
-
 function closeHighlightBar() { mobileBar.classList.add('hidden'); pendingSelectedText = ""; }
-
 function updateMemoUI() {
     const list = document.getElementById('memo-list');
-    if (memos.length === 0) {
-        list.innerHTML = '<p style="color: #888; text-align: center;">暫無筆記</p>';
-        return;
-    }
+    if (memos.length === 0) { list.innerHTML = '<p style="color: #888; text-align: center;">暫無筆記</p>'; return; }
     list.innerHTML = memos.map(m => `<div class="memo-item"><p>${m.content}</p><div class="memo-time">${m.time}</div></div>`).join('');
 }
-
 function loadMemos(uid) {
     const saved = localStorage.getItem(`memos_${uid}`);
     memos = saved ? JSON.parse(saved) : [];
@@ -137,25 +129,21 @@ function loadMemos(uid) {
 }
 
 // ========================================================
-// 4. 動態題庫引擎 (加入 type 參數區分正確答案 vs 建議答案)
+// 4. 動態題庫引擎 (正確/建議答案 雙軌並行)
 // ========================================================
-const idiomsData = [{ question: "【炙手可熱】請判斷以下哪一個句子正確使用了此成語？", options: ["A. 夏天炎熱，外面炙手可熱。", "B. 手機設計新穎，炙手可熱。", "C. 演唱會門票炙手可熱。", "D. 丞相在朝廷中炙手可熱，百官爭相討好。"], correctIndex: 3, explanation: "【炙手可熱】比喻權勢大、氣焰盛，帶貶義。" }];
-const grammarData = [{ question: "請找出並修正語病：「由於連日暴雨，使到低窪地區發生了嚴重水浸。」", options: ["A. 應刪去「由於」或「使到」。", "B. 「發生」不能配「水浸」。", "C. 「嚴重」和「水浸」重複。", "D. 「暴雨」不會導致「水浸」。"], correctIndex: 0, explanation: "濫用介詞導致主語缺失。" }];
-const memeData = [{ emoji: "🤦‍♂️", question: "朋友做事半途而廢，想發這個「無奈扶額」的表情，配哪句最適合？", options: ["A. 朽木不可雕也", "B. 燕雀安知鴻鵠之志", "C. 溫故而知新", "D. 己所不欲，勿施於人"], correctIndex: 0, explanation: "比喻人無可救藥，配無奈扶額最神似！" }];
+const idiomsData = [{ question: "【炙手可熱】正確的用法是？", options: ["A. 走出冷氣房，外面炙手可熱。", "B. 這款手機炙手可熱。", "C. 演唱會門票炙手可熱。", "D. 丞相在朝廷中炙手可熱。"], correctIndex: 3, explanation: "比喻權勢大、氣焰盛，帶貶義。" }];
+const grammarData = [{ question: "修正語病：「由於連日暴雨，使到低窪地區發生了嚴重水浸。」", options: ["A. 應刪去「由於」或「使到」。", "B. 「發生」不能配「水浸」。", "C. 「嚴重」和「水浸」重複。", "D. 「暴雨」不會導致「水浸」。"], correctIndex: 0, explanation: "濫用介詞導致主語缺失。" }];
+const memeData = [{ emoji: "🤦‍♂️", question: "朋友做事半途而廢，配哪句最適合？", options: ["A. 朽木不可雕也", "B. 燕雀安知鴻鵠之志", "C. 溫故而知新", "D. 己所不欲，勿施於人"], correctIndex: 0, explanation: "比喻人無可救藥。" }];
 const ancientModernData = [{ question: "「其實味不同」。請問「其實」在古文中的意思是什麼？", options: ["A. 實際上", "B. 它的果實", "C. 其中的道理", "D. 實在"], correctIndex: 1, explanation: "「其」是代詞（它的），「實」是名詞（果實）。" }];
-
-// 【改進點】：寫作思維題庫刻意安排「長短交替」的選項，打破學生的猜題慣性
-const themeData = [{ question: "《微笑以對》。以下哪一個寫作立意最深刻？", options: ["A. 比賽失敗勉強微笑。", "B. 微笑能解決所有問題。", "C. 經歷人生重大挫折後，內心真正釋懷，以豁達、包容的態度去微笑面對未來的無常。", "D. 對身邊的人微笑。"], correctIndex: 2, explanation: "C 將微笑昇華為人生態度，立意深刻！" }];
-const materialData = [{ question: "題目《重遊舊地所見有感》，想表達「物是人非」。哪個素材最切合？", options: ["A. 遊樂設施翻新了，更好玩。", "B. 舊招牌被無情拆除，多年來熟悉的雜貨店老闆因租金高昂而黯然結業，人情味蕩然無存。", "C. 巧遇小學同學，開心地敘舊。", "D. 舊居風景依然美麗。"], correctIndex: 1, explanation: "B 產生了強烈的落差感，緊扣物是人非。" }];
-const logicData = [{ question: "論點：「逆境能激發潛能」。論據：「司馬遷受宮刑作史記」。哪段論證最嚴密？", options: ["A. 司馬遷遭遇極大挫折，但他將悲憤化為寫作動力，這正正證明了逆境能激發出人類無窮的潛能。", "B. 學習他在逆境中讀歷史。", "C. 沒受宮刑就不會寫史記。", "D. 逆境中也要保持心情愉快。"], correctIndex: 0, explanation: "A 精準解釋了「逆境」如何轉化為「動力」。" }];
+const themeData = [{ question: "《微笑以對》。以下哪一個寫作立意最深刻？", options: ["A. 比賽失敗勉強微笑。", "B. 微笑能解決所有問題。", "C. 釋懷與豁達的面對人生無常。", "D. 對身邊的人微笑。"], correctIndex: 2, explanation: "C 將微笑昇華為人生態度，立意深刻！" }];
+const materialData = [{ question: "《重遊舊地所見有感》，想表達「物是人非」。哪個素材最切合？", options: ["A. 設施翻新了，更好玩。", "B. 舊招牌拆除，老闆結業，人情味蕩然無存。", "C. 巧遇小學同學。", "D. 風景依然美麗。"], correctIndex: 1, explanation: "B 產生了強烈的落差感。" }];
+const logicData = [{ question: "論點：「逆境能激發潛能」。論據：「司馬遷受宮刑作史記」。哪段論證最嚴密？", options: ["A. 將悲憤化為寫作動力，證明逆境激發潛能。", "B. 學習他在逆境中讀歷史。", "C. 沒受宮刑就不會寫史記。", "D. 逆境中也要保持心情愉快。"], correctIndex: 0, explanation: "A 精準解釋了因果關係。" }];
 
 function renderQuizzes() {
     renderDailyQuiz('quiz-container-1', idiomsData, 'normal');
     renderDailyQuiz('quiz-container-2a', grammarData, 'normal');
     renderDailyQuiz('quiz-container-3', memeData, 'normal', true);
     renderDailyQuiz('quiz-container-6', ancientModernData, 'normal');
-    
-    // 寫作思維模塊傳入 'suggested'，讓回饋顯示「建議答案」
     renderDailyQuiz('quiz-container-16', themeData, 'suggested');
     renderDailyQuiz('quiz-container-17', materialData, 'suggested');
     renderDailyQuiz('quiz-container-18', logicData, 'suggested');
@@ -164,9 +152,7 @@ function renderQuizzes() {
 function renderDailyQuiz(containerId, dataArray, type = 'normal', isMeme = false) {
     const container = document.getElementById(containerId);
     if(!container) return; 
-    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-    const q = dataArray[dayOfYear % dataArray.length];
-    
+    const q = dataArray[0];
     const memeHtml = isMeme && q.emoji ? `<div style="font-size: 4rem; text-align: center; margin-bottom: 10px;">${q.emoji}</div>` : '';
     
     container.innerHTML = `
@@ -182,18 +168,14 @@ function renderDailyQuiz(containerId, dataArray, type = 'normal', isMeme = false
     </div>`;
 }
 
-// 【改進點】支援「建議答案」的判斷邏輯
 function checkAnswer(btn, clickedIndex, correctIndex, explanation, type) {
     const parent = btn.parentElement;
     const feedback = parent.nextElementSibling;
     const allButtons = parent.querySelectorAll('.btn-option');
-    
     allButtons.forEach(b => b.disabled = true);
     feedback.classList.remove('hidden');
-    
     const labelText = type === 'suggested' ? '💡 建議答案' : '✅ 正確答案';
     const correctLetter = String.fromCharCode(65 + correctIndex); 
-    
     if (clickedIndex === correctIndex) {
         btn.style.backgroundColor = '#d4edda'; btn.style.borderColor = '#28a745';
         feedback.className = 'feedback success';
@@ -201,9 +183,64 @@ function checkAnswer(btn, clickedIndex, correctIndex, explanation, type) {
         userScore += 20; document.getElementById('score').innerText = userScore;
     } else {
         btn.style.backgroundColor = '#f8d7da'; btn.style.borderColor = '#dc3545';
-        allButtons[correctIndex].style.backgroundColor = '#d4edda';
-        allButtons[correctIndex].style.borderColor = '#28a745'; allButtons[correctIndex].style.borderWidth = '2px';
+        allButtons[correctIndex].style.backgroundColor = '#d4edda'; allButtons[correctIndex].style.borderColor = '#28a745'; allButtons[correctIndex].style.borderWidth = '2px';
         feedback.className = 'feedback error';
         feedback.innerHTML = `❌ 稍嫌遜色！${labelText}是 <strong>${correctLetter}</strong>。<br><br>💡 解析：${explanation}`;
     }
+}
+
+// ========================================================
+// 5. 🌟 社群共創系統 (模塊 8、9、10)
+// ========================================================
+
+// 預設假數據，讓版面看起來熱鬧
+let socialData = {
+    8: [ { name: "陳老師", text: "我最不能忘記的是他的背影。這句平淡卻充滿後勁。", likes: 12 } ],
+    9: [ { name: "中一A 李大文", text: "調皮的微風在樹梢間穿梭，惹得樹葉們咯咯嬌笑。", likes: 8 } ],
+    10: [ { name: "系統", text: "我們在學校後山發現了一個生鏽的寶箱，寶箱上面刻著一個奇怪的圖騰..." } ]
+};
+
+function renderSocial() {
+    ['8', '9', '10'].forEach(id => {
+        const wall = document.getElementById('wall-' + id);
+        if(!wall) return;
+        
+        // 渲染留言卡片
+        wall.innerHTML = socialData[id].map((item, index) => `
+            <div class="memo-item" style="border-left-color: #4facfe; margin-bottom: 10px;">
+                <p style="font-size:1.05rem; margin-bottom:8px;">${item.text}</p>
+                <div style="display:flex; justify-content:space-between; color:#888; font-size:0.85rem;">
+                    <span>✍️ ${item.name}</span>
+                    ${id !== '10' ? `<span style="cursor:pointer;" onclick="likePost(${id}, ${index})">❤️ ${item.likes}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
+    });
+}
+
+function submitSocial(id) {
+    if(!currentUser) return alert("請先登入！"); 
+    const input = document.getElementById('input-' + id);
+    const text = input.value.trim();
+    if(text === "") return alert("請輸入內容喔！"); 
+    
+    // 如果是接龍小說(10)放最後面，否則(8,9)放最前面
+    if(id === 10) {
+        socialData[id].push({ name: currentUser.displayName, text: text });
+    } else {
+        socialData[id].unshift({ name: currentUser.displayName, text: text, likes: 0 });
+    }
+    
+    input.value = "";
+    renderSocial();
+    
+    const points = (id === 8) ? 10 : (id === 9 ? 15 : 20);
+    userScore += points;
+    document.getElementById('score').innerText = userScore;
+    alert(`🎉 發佈成功！獲得 ${points} 積分！\n\n(提示：正式接通資料庫後，全校同學都會看到你的傑作！)`);
+}
+
+function likePost(id, index) {
+    socialData[id][index].likes++;
+    renderSocial();
 }
