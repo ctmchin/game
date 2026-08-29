@@ -31,10 +31,9 @@
         </div>
     </div>
 
-    <!-- 手機側邊欄遮罩 -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- 螢光筆提示欄 -->
+    <!-- 螢光筆提示欄 (已修復標籤閉合問題) -->
     <div id="mobile-highlight-bar" class="mobile-highlight-bar hidden">
         <div class="highlight-bar-content">
             <span class="highlight-preview">「<span id="highlight-text-preview" style="color:#d32f2f; font-weight:bold;"></span>」</span>
@@ -61,52 +60,46 @@
                 <li><a href="#" onclick="switchTab('feature-1', event)">1. 成語大挑戰</a></li>
                 <li><a href="#" onclick="switchTab('feature-2', event)">2. 語病通緝令</a></li>
                 
-                <li class="nav-title">二、寫作思維訓練</li>
-                <li><a href="#" class="active" onclick="switchTab('feature-16', event)">16. 題目立意偵探</a></li>
+                <li class="nav-title">二、文言文遊戲區</li>
+                <li><a href="#" class="active" onclick="switchTab('feature-3', event)">3. 古人表情包</a></li>
+                <li><a href="#" onclick="switchTab('feature-6', event)">6. 古今異義找碴</a></li>
+
+                <li class="nav-title">三、寫作思維訓練</li>
+                <li><a href="#" onclick="switchTab('feature-16', event)">16. 題目立意偵探</a></li>
                 <li><a href="#" onclick="switchTab('feature-17', event)">17. 取材大裁判</a></li>
                 <li><a href="#" onclick="switchTab('feature-18', event)">18. 邏輯大法官</a></li>
 
-                <li class="nav-title">三、閱讀與收集</li>
+                <li class="nav-title">四、閱讀與收集</li>
                 <li><a href="#" onclick="switchTab('feature-reading', event)">📖 散文閱讀</a></li>
-                <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬語文備忘錄</a></li>
+                <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬備忘錄</a></li>
             </ul>
         </nav>
 
         <main class="content">
-            <!-- 手機版專屬頂部導航 -->
             <div class="mobile-header">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()">☰ 選單</button>
                 <h3 class="mobile-title">語文宇宙</h3>
             </div>
 
-            <!-- 模塊 1、2：語文基礎 -->
-            <section id="feature-1" class="module hidden">
-                <h2>🎯 1. 成語大挑戰 (DSE 級別)</h2>
-                <div id="quiz-container-1"></div>
+            <section id="feature-1" class="module hidden"><h2>🎯 1. 成語大挑戰</h2><div id="quiz-container-1"></div></section>
+            <section id="feature-2" class="module hidden"><h2>🕵️ 2. 語病通緝令</h2><div id="quiz-container-2"></div></section>
+
+            <section id="feature-3" class="module active">
+                <h2>🎭 3. 古人表情包 (Meme)</h2>
+                <p style="margin-bottom: 20px; color: #555;">如果古人也有 WhatsApp，他們會發什麼圖？選出最配表情的文言文！</p>
+                <div id="quiz-container-3"></div>
             </section>
-            <section id="feature-2" class="module hidden">
-                <h2>🕵️ 2. 語病通緝令 (DSE 級別)</h2>
-                <div id="quiz-container-2"></div>
+            
+            <section id="feature-6" class="module hidden">
+                <h2>🔍 6. 古今異義找碴</h2>
+                <p style="margin-bottom: 20px; color: #555;">找出文言文中與現代意思完全不同的「雙面間諜」。</p>
+                <div id="quiz-container-6"></div>
             </section>
 
-            <!-- 模塊 16、17、18：寫作思維 -->
-            <section id="feature-16" class="module active">
-                <h2>🕵️‍♂️ 16. 題目立意偵探</h2>
-                <p style="margin-bottom: 20px; color: #555;">拒絕膚淺！找出能讓考官眼前一亮的「黃金立意」。</p>
-                <div id="quiz-container-16"></div>
-            </section>
-            <section id="feature-17" class="module hidden">
-                <h2>⚖️ 17. 記描抒取材裁判</h2>
-                <p style="margin-bottom: 20px; color: #555;">拒絕老土！找出最切合主題且細節動人的「黃金素材」。</p>
-                <div id="quiz-container-17"></div>
-            </section>
-            <section id="feature-18" class="module hidden">
-                <h2>📜 18. 議論文邏輯大法官</h2>
-                <p style="margin-bottom: 20px; color: #555;">拒絕油水分離！找出論點與論據之間最嚴密的「邏輯鏈」。</p>
-                <div id="quiz-container-18"></div>
-            </section>
+            <section id="feature-16" class="module hidden"><h2>🕵️‍♂️ 16. 題目立意偵探</h2><div id="quiz-container-16"></div></section>
+            <section id="feature-17" class="module hidden"><h2>⚖️ 17. 記描抒取材裁判</h2><div id="quiz-container-17"></div></section>
+            <section id="feature-18" class="module hidden"><h2>📜 18. 議論文邏輯大法官</h2><div id="quiz-container-18"></div></section>
 
-            <!-- 散文與備忘錄 -->
             <section id="feature-reading" class="module hidden">
                 <h2>📖 閱讀：《背影》全文節錄 (朱自清)</h2>
                 <div class="card" id="article-content">
@@ -117,13 +110,10 @@
                     </p>
                 </div>
             </section>
+            
             <section id="feature-15" class="module hidden">
                 <h2>📝 15. 專屬語文備忘錄</h2>
-                <div class="card">
-                    <div id="memo-list" class="memo-container">
-                        <p style="color: #888; text-align: center;">暫無筆記</p>
-                    </div>
-                </div>
+                <div class="card"><div id="memo-list" class="memo-container"><p style="color: #888; text-align: center;">暫無筆記</p></div></div>
             </section>
         </main>
     </div>
