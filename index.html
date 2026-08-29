@@ -15,12 +15,7 @@
             <h2>🚀 語文互動宇宙</h2>
             <p>請登入以同步你的靈獸與備忘錄</p>
             <button class="btn-google" onclick="loginWithGoogle()">
-                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                 學校 Google 帳號登入
             </button>
             <div class="separator"><span>或使用手動登入</span></div>
@@ -32,10 +27,8 @@
         </div>
     </div>
 
-    <!-- 手機側邊欄遮罩 -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- 螢光筆提示欄 -->
     <div id="mobile-highlight-bar" class="mobile-highlight-bar hidden">
         <div class="highlight-bar-content">
             <span class="highlight-preview">「<span id="highlight-text-preview" style="color:#d32f2f; font-weight:bold;"></span>」</span>
@@ -45,7 +38,6 @@
     </div>
 
     <div id="dashboard" class="dashboard hidden">
-        <!-- 側邊選單 -->
         <nav class="sidebar">
             <div class="logo">🚀 語文宇宙</div>
             <div class="user-profile">
@@ -59,22 +51,37 @@
             </div>
             
             <ul class="nav-links">
-                <li class="nav-title">一、語文基礎每日挑戰</li>
+                <li class="nav-title">一、每日微挑戰</li>
                 <li><a href="#" onclick="switchTab('feature-1', event)">1. 成語大挑戰</a></li>
-                <li><a href="#" onclick="switchTab('feature-2', event)">2. 語病通緝令</a></li>
+                <li><a href="#" onclick="switchTab('feature-2a', event)">2a. 語病通緝令</a></li>
+                <li><a href="#" onclick="switchTab('feature-2b', event)">2b. 錯別字偵探</a></li>
                 
-                <li class="nav-title">二、文言文遊戲區</li>
+                <li class="nav-title">二、文言文專區</li>
                 <li><a href="#" onclick="switchTab('feature-3', event)">3. 古人表情包</a></li>
+                <li><a href="#" onclick="switchTab('feature-4', event)">4. 古今譯配對</a></li>
+                <li><a href="#" onclick="switchTab('feature-5', event)">5. 一詞多義打怪</a></li>
                 <li><a href="#" onclick="switchTab('feature-6', event)">6. 古今異義找碴</a></li>
+                <li><a href="#" onclick="switchTab('feature-7', event)">7. 閱讀地圖 (三級難度)</a></li>
 
                 <li class="nav-title">三、寫作思維訓練</li>
                 <li><a href="#" onclick="switchTab('feature-16', event)">16. 題目立意偵探</a></li>
                 <li><a href="#" onclick="switchTab('feature-17', event)">17. 取材大裁判</a></li>
                 <li><a href="#" onclick="switchTab('feature-18', event)">18. 邏輯大法官</a></li>
 
-                <li class="nav-title">四、閱讀與收集</li>
+                <li class="nav-title">四、社群與共創</li>
+                <li><a href="#" onclick="switchTab('feature-8', event)">8. 佳句提煉牆</a></li>
+                <li><a href="#" onclick="switchTab('feature-9', event)">9. 修辭改寫沙盒</a></li>
+                <li><a href="#" onclick="switchTab('feature-10', event)">10. 文字接龍小說</a></li>
+                <li><a href="#" onclick="switchTab('feature-11', event)">11. AI 魔法畫廊</a></li>
+
+                <li class="nav-title">五、閱讀與工具</li>
                 <li><a href="#" class="active" onclick="switchTab('feature-reading', event)">📖 散文閱讀</a></li>
                 <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬備忘錄</a></li>
+                
+                <li class="nav-title">六、遊戲系統</li>
+                <li><a href="#" onclick="switchTab('feature-12', event)">🐉 12. 靈獸成長</a></li>
+                <li><a href="#" onclick="switchTab('feature-13', event)">🎁 13. 抽卡盲盒</a></li>
+                <li><a href="#" onclick="switchTab('feature-14', event)">🏆 14. 榮譽排行榜</a></li>
             </ul>
         </nav>
 
@@ -84,22 +91,29 @@
                 <h3 class="mobile-title">語文宇宙</h3>
             </div>
 
-            <!-- ⚠️ 這裡已經把 hidden 拿掉了，只保留 module，這樣 CSS 切換 active 才會生效 -->
+            <!-- 開發中的模塊將顯示「建設中」提示 -->
             <section id="feature-1" class="module"><h2>🎯 1. 成語大挑戰</h2><div id="quiz-container-1"></div></section>
-            <section id="feature-2" class="module"><h2>🕵️ 2. 語病通緝令</h2><div id="quiz-container-2"></div></section>
+            <section id="feature-2a" class="module"><h2>🕵️ 2a. 語病通緝令</h2><div id="quiz-container-2a"></div></section>
+            <section id="feature-2b" class="module"><h2>🔍 2b. 錯別字偵探</h2><div id="quiz-container-2b"><p style="padding:20px;color:#888;">🚧 模塊開發中：即將加入錯別字挑戰！</p></div></section>
 
-            <section id="feature-3" class="module">
-                <h2>🎭 3. 古人表情包 (Meme)</h2>
-                <div id="quiz-container-3"></div>
-            </section>
-            <section id="feature-6" class="module">
-                <h2>🔍 6. 古今異義找碴</h2>
-                <div id="quiz-container-6"></div>
-            </section>
+            <section id="feature-3" class="module"><h2>🎭 3. 古人表情包</h2><div id="quiz-container-3"></div></section>
+            <section id="feature-4" class="module"><h2>🔗 4. 古今譯配對</h2><div class="card"><p>🚧 模塊開發中：即將加入連連看互動！</p></div></section>
+            <section id="feature-5" class="module"><h2>⚔️ 5. 一詞多義打怪</h2><div class="card"><p>🚧 模塊開發中：即將加入打怪動畫！</p></div></section>
+            <section id="feature-6" class="module"><h2>🔍 6. 古今異義找碴</h2><div id="quiz-container-6"></div></section>
+            <section id="feature-7" class="module"><h2>🗺️ 7. 閱讀地圖 (三級難度)</h2><div class="card"><p>🚧 模塊開發中：即將加入中一/中二/DSE難度選擇！</p></div></section>
 
             <section id="feature-16" class="module"><h2>🕵️‍♂️ 16. 題目立意偵探</h2><div id="quiz-container-16"></div></section>
             <section id="feature-17" class="module"><h2>⚖️ 17. 記描抒取材裁判</h2><div id="quiz-container-17"></div></section>
             <section id="feature-18" class="module"><h2>📜 18. 議論文邏輯大法官</h2><div id="quiz-container-18"></div></section>
+
+            <section id="feature-8" class="module"><h2>📚 8. 佳句提煉牆</h2><div class="card"><p>🚧 模塊開發中：即將接通雲端留言板！</p></div></section>
+            <section id="feature-9" class="module"><h2>✍️ 9. 修辭改寫沙盒</h2><div class="card"><p>🚧 模塊開發中：即將接通雲端點讚系統！</p></div></section>
+            <section id="feature-10" class="module"><h2>📖 10. 文字接龍小說</h2><div class="card"><p>🚧 模塊開發中：即將加入全校共創故事！</p></div></section>
+            <section id="feature-11" class="module"><h2>🎨 11. AI 魔法畫廊</h2><div class="card"><p>🚧 模塊開發中：即將接入 AI 繪圖生成器！</p></div></section>
+            
+            <section id="feature-12" class="module"><h2>🐉 12. 靈獸成長</h2><div class="card"><p>🚧 模塊開發中：即將解鎖進化圖鑑！</p></div></section>
+            <section id="feature-13" class="module"><h2>🎁 13. 抽卡盲盒</h2><div class="card"><p>🚧 模塊開發中：消耗積分抽取特權卡！</p></div></section>
+            <section id="feature-14" class="module"><h2>🏆 14. 榮譽排行榜</h2><div class="card"><p>🚧 模塊開發中：即將接通全校積分排名！</p></div></section>
 
             <section id="feature-reading" class="module active">
                 <h2>📖 閱讀：《背影》全文節錄 (朱自清)</h2>
@@ -118,7 +132,6 @@
             </section>
         </main>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
