@@ -24,10 +24,7 @@ try {
 
 function checkManualLogin() {
     const savedManualUser = sessionStorage.getItem('manualUser');
-    if (savedManualUser) { 
-        handleLoginSuccess(JSON.parse(savedManualUser)); 
-    } 
-    // 不需要寫移除 hidden，因為 HTML 已經預設顯示了！
+    if (savedManualUser) { handleLoginSuccess(JSON.parse(savedManualUser)); } 
 }
 
 function loginWithGoogle() {
@@ -35,7 +32,7 @@ function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
         firebase.auth().languageCode = 'zh-HK'; 
         firebase.auth().signInWithPopup(provider).catch((e) => alert("登入失敗: " + e.message));
-    } catch (e) { alert("無法連線，請先使用手動登入！"); }
+    } catch (e) { alert("無法連線，請使用手動登入！"); }
 }
 
 function loginManually() {
@@ -49,8 +46,8 @@ function loginManually() {
 
 function handleLoginSuccess(user) {
     currentUser = user;
-    document.getElementById('login-screen').classList.add('hidden'); // 登入成功才隱藏
-    document.getElementById('dashboard').classList.remove('hidden'); // 顯示系統
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
     document.getElementById('user-display-name').innerText = user.displayName;
     loadMemos(user.uid);
     renderQuizzes(); 
@@ -140,27 +137,31 @@ function loadMemos(uid) {
 }
 
 // ========================================================
-// 4. 動態題庫引擎 (防斷裂版)
+// 4. 動態題庫引擎 (加入 type 參數區分正確答案 vs 建議答案)
 // ========================================================
 const idiomsData = [{ question: "【炙手可熱】請判斷以下哪一個句子正確使用了此成語？", options: ["A. 夏天炎熱，外面炙手可熱。", "B. 手機設計新穎，炙手可熱。", "C. 演唱會門票炙手可熱。", "D. 丞相在朝廷中炙手可熱，百官爭相討好。"], correctIndex: 3, explanation: "【炙手可熱】比喻權勢大、氣焰盛，帶貶義。" }];
 const grammarData = [{ question: "請找出並修正語病：「由於連日暴雨，使到低窪地區發生了嚴重水浸。」", options: ["A. 應刪去「由於」或「使到」。", "B. 「發生」不能配「水浸」。", "C. 「嚴重」和「水浸」重複。", "D. 「暴雨」不會導致「水浸」。"], correctIndex: 0, explanation: "濫用介詞導致主語缺失。" }];
-const themeData = [{ question: "DSE 題目《微笑以對》。以下哪一個寫作立意最深刻？", options: ["A. 比賽失敗勉強擠出微笑。", "B. 只要微笑，問題自動解決。", "C. 經歷挫折後釋懷，以豁達的微笑面對人生。", "D. 別人對我微笑，我也對人微笑。"], correctIndex: 2, explanation: "C 將微笑昇華為「豁達的人生態度」，立意深刻！" }];
-const materialData = [{ question: "題目《重遊舊地所見有感》，想表達「物是人非」。哪個素材最切合？", options: ["A. 遊樂設施翻新了，更好玩。", "B. 風景美麗，想起了小時候。", "C. 巧遇小學同學，開心地敘舊。", "D. 舊招牌已拆，老闆換人，人情味蕩然無存。"], correctIndex: 3, explanation: "D 產生了強烈的落差感，緊扣物是人非。" }];
-const logicData = [{ question: "論點：「逆境能激發潛能」。論據：「司馬遷受宮刑作史記」。哪段論證最嚴密？", options: ["A. 他將悲憤化為寫作動力，證明逆境能激發潛能。", "B. 我們應該學習他在逆境中讀歷史。", "C. 沒受宮刑就不會寫史記，人人都需經歷宮刑。", "D. 即使在逆境中也要保持心情愉快。"], correctIndex: 0, explanation: "A 精準解釋了「逆境」如何轉化為「動力」。" }];
-const memeData = [{ emoji: "🤦‍♂️", question: "朋友做事半途而廢，你想發這個「無奈扶額」的表情，配哪句文言文最適合？", options: ["A. 朽木不可雕也", "B. 燕雀安知鴻鵠之志", "C. 溫故而知新", "D. 己所不欲，勿施於人"], correctIndex: 0, explanation: "【朽木不可雕也】比喻人無可救藥，配無奈扶額的表情最神似！" }];
-const ancientModernData = [{ question: "「其實味不同」。請問「其實」在古文中的意思是什麼？", options: ["A. 實際上 (與現代同義)", "B. 它的果實", "C. 其中的道理", "D. 實在、確切"], correctIndex: 1, explanation: "「其」是代詞（它的），「實」是名詞（果實）。這就是古今異義！" }];
+const memeData = [{ emoji: "🤦‍♂️", question: "朋友做事半途而廢，想發這個「無奈扶額」的表情，配哪句最適合？", options: ["A. 朽木不可雕也", "B. 燕雀安知鴻鵠之志", "C. 溫故而知新", "D. 己所不欲，勿施於人"], correctIndex: 0, explanation: "比喻人無可救藥，配無奈扶額最神似！" }];
+const ancientModernData = [{ question: "「其實味不同」。請問「其實」在古文中的意思是什麼？", options: ["A. 實際上", "B. 它的果實", "C. 其中的道理", "D. 實在"], correctIndex: 1, explanation: "「其」是代詞（它的），「實」是名詞（果實）。" }];
+
+// 【改進點】：寫作思維題庫刻意安排「長短交替」的選項，打破學生的猜題慣性
+const themeData = [{ question: "《微笑以對》。以下哪一個寫作立意最深刻？", options: ["A. 比賽失敗勉強微笑。", "B. 微笑能解決所有問題。", "C. 經歷人生重大挫折後，內心真正釋懷，以豁達、包容的態度去微笑面對未來的無常。", "D. 對身邊的人微笑。"], correctIndex: 2, explanation: "C 將微笑昇華為人生態度，立意深刻！" }];
+const materialData = [{ question: "題目《重遊舊地所見有感》，想表達「物是人非」。哪個素材最切合？", options: ["A. 遊樂設施翻新了，更好玩。", "B. 舊招牌被無情拆除，多年來熟悉的雜貨店老闆因租金高昂而黯然結業，人情味蕩然無存。", "C. 巧遇小學同學，開心地敘舊。", "D. 舊居風景依然美麗。"], correctIndex: 1, explanation: "B 產生了強烈的落差感，緊扣物是人非。" }];
+const logicData = [{ question: "論點：「逆境能激發潛能」。論據：「司馬遷受宮刑作史記」。哪段論證最嚴密？", options: ["A. 司馬遷遭遇極大挫折，但他將悲憤化為寫作動力，這正正證明了逆境能激發出人類無窮的潛能。", "B. 學習他在逆境中讀歷史。", "C. 沒受宮刑就不會寫史記。", "D. 逆境中也要保持心情愉快。"], correctIndex: 0, explanation: "A 精準解釋了「逆境」如何轉化為「動力」。" }];
 
 function renderQuizzes() {
-    renderDailyQuiz('quiz-container-1', idiomsData);
-    renderDailyQuiz('quiz-container-2', grammarData);
-    renderDailyQuiz('quiz-container-3', memeData, true);
-    renderDailyQuiz('quiz-container-6', ancientModernData);
-    renderDailyQuiz('quiz-container-16', themeData);
-    renderDailyQuiz('quiz-container-17', materialData);
-    renderDailyQuiz('quiz-container-18', logicData);
+    renderDailyQuiz('quiz-container-1', idiomsData, 'normal');
+    renderDailyQuiz('quiz-container-2a', grammarData, 'normal');
+    renderDailyQuiz('quiz-container-3', memeData, 'normal', true);
+    renderDailyQuiz('quiz-container-6', ancientModernData, 'normal');
+    
+    // 寫作思維模塊傳入 'suggested'，讓回饋顯示「建議答案」
+    renderDailyQuiz('quiz-container-16', themeData, 'suggested');
+    renderDailyQuiz('quiz-container-17', materialData, 'suggested');
+    renderDailyQuiz('quiz-container-18', logicData, 'suggested');
 }
 
-function renderDailyQuiz(containerId, dataArray, isMeme = false) {
+function renderDailyQuiz(containerId, dataArray, type = 'normal', isMeme = false) {
     const container = document.getElementById(containerId);
     if(!container) return; 
     const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
@@ -174,14 +175,15 @@ function renderDailyQuiz(containerId, dataArray, isMeme = false) {
         <p class="question"><strong>📅 今日挑戰：</strong>${q.question}</p>
         <div class="options">
             ${q.options.map((opt, optIndex) => `
-                <button class="btn-option" onclick="checkAnswer(this, ${optIndex}, ${q.correctIndex}, '${q.explanation}')">${opt}</button>
+                <button class="btn-option" onclick="checkAnswer(this, ${optIndex}, ${q.correctIndex}, '${q.explanation}', '${type}')">${opt}</button>
             `).join('')}
         </div>
         <div class="feedback hidden" style="margin-top:15px;"></div>
     </div>`;
 }
 
-function checkAnswer(btn, clickedIndex, correctIndex, explanation) {
+// 【改進點】支援「建議答案」的判斷邏輯
+function checkAnswer(btn, clickedIndex, correctIndex, explanation, type) {
     const parent = btn.parentElement;
     const feedback = parent.nextElementSibling;
     const allButtons = parent.querySelectorAll('.btn-option');
@@ -189,16 +191,19 @@ function checkAnswer(btn, clickedIndex, correctIndex, explanation) {
     allButtons.forEach(b => b.disabled = true);
     feedback.classList.remove('hidden');
     
+    const labelText = type === 'suggested' ? '💡 建議答案' : '✅ 正確答案';
+    const correctLetter = String.fromCharCode(65 + correctIndex); 
+    
     if (clickedIndex === correctIndex) {
         btn.style.backgroundColor = '#d4edda'; btn.style.borderColor = '#28a745';
         feedback.className = 'feedback success';
-        feedback.innerHTML = `🎉 答對了！<br><br>💡 解析：${explanation}<br><br>🌟 獲得 20 積分！`;
+        feedback.innerHTML = `🎉 選擇極佳！<br><br>💡 解析：${explanation}<br><br>🌟 獲得 20 積分！`;
         userScore += 20; document.getElementById('score').innerText = userScore;
     } else {
         btn.style.backgroundColor = '#f8d7da'; btn.style.borderColor = '#dc3545';
         allButtons[correctIndex].style.backgroundColor = '#d4edda';
         allButtons[correctIndex].style.borderColor = '#28a745'; allButtons[correctIndex].style.borderWidth = '2px';
         feedback.className = 'feedback error';
-        feedback.innerHTML = `❌ 答錯了！正確答案是 <strong>${String.fromCharCode(65 + correctIndex)}</strong>。<br><br>💡 解析：${explanation}`;
+        feedback.innerHTML = `❌ 稍嫌遜色！${labelText}是 <strong>${correctLetter}</strong>。<br><br>💡 解析：${explanation}`;
     }
 }
