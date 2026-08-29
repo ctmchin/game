@@ -58,7 +58,7 @@
                 
                 <li class="nav-title">二、文言文專區</li>
                 <li><a href="#" onclick="switchTab('feature-3', event)">3. 古人表情包</a></li>
-                <li><a href="#" onclick="switchTab('feature-4', event)">4. 古今譯配對</a></li>
+                <li><a href="#" class="active" onclick="switchTab('feature-4', event)">4. 古今譯配對</a></li>
                 <li><a href="#" onclick="switchTab('feature-5', event)">5. 一詞多義打怪</a></li>
                 <li><a href="#" onclick="switchTab('feature-6', event)">6. 古今異義找碴</a></li>
                 <li><a href="#" onclick="switchTab('feature-7', event)">7. 閱讀地圖</a></li>
@@ -75,7 +75,7 @@
                 <li><a href="#" onclick="switchTab('feature-11', event)">11. AI 魔法畫廊</a></li>
 
                 <li class="nav-title">五、閱讀與工具</li>
-                <li><a href="#" class="active" onclick="switchTab('feature-reading', event)">📖 散文閱讀</a></li>
+                <li><a href="#" onclick="switchTab('feature-reading', event)">📖 散文閱讀</a></li>
                 <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬備忘錄</a></li>
                 
                 <li class="nav-title">六、遊戲系統</li>
@@ -91,110 +91,78 @@
                 <h3 class="mobile-title">語文宇宙</h3>
             </div>
 
-            <!-- 模塊 1、2a、2b -->
             <section id="feature-1" class="module"><h2>🎯 1. 成語大挑戰</h2><div id="quiz-container-1"></div></section>
             <section id="feature-2a" class="module"><h2>🕵️ 2a. 語病通緝令</h2><div id="quiz-container-2a"></div></section>
             <section id="feature-2b" class="module"><h2>🔍 2b. 錯別字偵探</h2><div id="quiz-container-2b"></div></section>
 
-            <!-- 模塊 3、4、5、6、7 -->
             <section id="feature-3" class="module"><h2>🎭 3. 古人表情包</h2><div id="quiz-container-3"></div></section>
-            <section id="feature-4" class="module"><h2>🔗 4. 古今譯配對</h2><div class="card"><p style="color:#888;">🚧 即將加入連連看互動！</p></div></section>
-            <section id="feature-5" class="module"><h2>⚔️ 5. 一詞多義打怪</h2><div class="card"><p style="color:#888;">🚧 即將加入打怪動畫！</p></div></section>
-            <section id="feature-6" class="module"><h2>🔍 6. 古今異義找碴</h2><div id="quiz-container-6"></div></section>
-            <section id="feature-7" class="module"><h2>🗺️ 7. 閱讀地圖</h2><div class="card"><p style="color:#888;">🚧 即將加入文言文閱讀！</p></div></section>
+            
+            <!-- 【全新】模塊 4：古今譯配對 -->
+            <section id="feature-4" class="module active">
+                <h2>🔗 4. 古今譯配對 (連連看)</h2>
+                <div class="card">
+                    <p style="margin-bottom: 20px; color: #555;"><strong>玩法：</strong>先點擊左側的「文言字詞」，再點擊右側正確的「現代解釋」。配對成功即可消去！</p>
+                    <div style="display: flex; justify-content: space-between; gap: 15px;">
+                        <div id="match-left" style="flex: 1; display: flex; flex-direction: column; gap: 10px;"></div>
+                        <div id="match-right" style="flex: 1; display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
+                    <div id="match-feedback" class="feedback hidden" style="margin-top:20px;"></div>
+                </div>
+            </section>
 
-            <!-- 模塊 16、17、18 -->
+            <!-- 【全新】模塊 5：一詞多義打怪 -->
+            <section id="feature-5" class="module">
+                <h2>⚔️ 5. 一詞多義打怪 (Boss 戰)</h2>
+                <div class="card" style="text-align: center;">
+                    <p style="margin-bottom: 10px; color: #555;">今日 Boss：<strong>「之」字怪獸</strong>！請選擇正確字義來扣減牠的血量！</p>
+                    <div style="font-size: 5rem; margin: 10px 0;" id="boss-emoji">👾</div>
+                    <div style="width: 100%; background: #eee; height: 15px; border-radius: 10px; margin-bottom: 20px; overflow: hidden;">
+                        <div id="boss-hp" style="width: 100%; background: #dc3545; height: 100%; transition: width 0.3s;"></div>
+                    </div>
+                    <h3 id="boss-question" style="margin-bottom: 20px; font-size: 1.3rem; color: #1976d2;">載入中...</h3>
+                    <div class="options" id="boss-options"></div>
+                    <div id="boss-feedback" class="feedback hidden"></div>
+                </div>
+            </section>
+
+            <section id="feature-6" class="module"><h2>🔍 6. 古今異義找碴</h2><div id="quiz-container-6"></div></section>
+            
+            <!-- 【全新】模塊 7：閱讀地圖 -->
+            <section id="feature-7" class="module">
+                <h2>🗺️ 7. 閱讀地圖 (三級難度)</h2>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color:#1976d2;">《賣油翁》(節錄) - 歐陽脩</h3>
+                    <p class="reading-p" style="margin-bottom: 20px; line-height: 1.8; font-size: 1.1rem; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                        乃取一葫蘆置於地，以錢覆其口，徐以杓酌油瀝之，自錢孔入，而錢不濕。
+                    </p>
+                    <p style="margin-bottom: 15px; color: #555;">請選擇挑戰難度：</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn-primary" style="flex:1; background:#4caf50; min-width:100px;" onclick="loadReadingQuiz(1)">🌱 基礎 (字譯)</button>
+                        <button class="btn-primary" style="flex:1; background:#ff9800; min-width:100px;" onclick="loadReadingQuiz(2)">🌲 進階 (選擇)</button>
+                        <button class="btn-primary" style="flex:1; background:#d32f2f; min-width:100px;" onclick="loadReadingQuiz(3)">🔥 挑戰 (DSE)</button>
+                    </div>
+                    <div id="reading-quiz-container">
+                        <p style="color: #888; text-align: center;">請點擊上方按鈕選擇難度開始挑戰！</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 寫作與社群 -->
             <section id="feature-16" class="module"><h2>🕵️‍♂️ 16. 題目立意偵探</h2><div id="quiz-container-16"></div></section>
             <section id="feature-17" class="module"><h2>⚖️ 17. 記描抒取材裁判</h2><div id="quiz-container-17"></div></section>
             <section id="feature-18" class="module"><h2>📜 18. 議論文邏輯大法官</h2><div id="quiz-container-18"></div></section>
 
-            <!-- 模塊 8、9、10 (社群) -->
-            <section id="feature-8" class="module">
-                <h2>📚 8. 佳句提煉牆</h2>
-                <div class="card">
-                    <textarea id="input-8" class="text-input" placeholder="例如：我最不能忘記的是他的背影..."></textarea>
-                    <button class="btn-primary" onclick="submitSocial(8)">發佈上牆 (+10分)</button>
-                    <div id="wall-8" class="memo-container"></div>
-                </div>
-            </section>
-            <section id="feature-9" class="module">
-                <h2>✍️ 9. 修辭改寫沙盒</h2>
-                <div class="card">
-                    <p style="margin-bottom:10px;"><strong>挑戰：</strong>將「風吹過樹梢」加入<strong style="color:#d32f2f;">擬人法</strong></p>
-                    <textarea id="input-9" class="text-input" placeholder="寫下你的創意改寫，讓同學為你點讚..."></textarea>
-                    <button class="btn-primary" onclick="submitSocial(9)">提交改寫 (+15分)</button>
-                    <div id="wall-9" class="memo-container"></div>
-                </div>
-            </section>
-            <section id="feature-10" class="module">
-                <h2>📖 10. 文字接龍小說</h2>
-                <div class="card">
-                    <p style="margin-bottom:10px;"><strong>故事背景：</strong>我們在學校後山發現了一個生鏽的寶箱...</p>
-                    <div id="wall-10" class="memo-container" style="background:#f0f8ff; padding:15px; border-radius:8px;"></div>
-                    <textarea id="input-10" class="text-input" placeholder="接下來發生了什麼事？請接龍..."></textarea>
-                    <button class="btn-primary" onclick="submitSocial(10)">提交劇情 (+20分)</button>
-                </div>
-            </section>
+            <section id="feature-8" class="module"><h2>📚 8. 佳句提煉牆</h2><div class="card"><textarea id="input-8" class="text-input" placeholder="分享佳句..."></textarea><button class="btn-primary" onclick="submitSocial(8)">發佈上牆 (+10分)</button><div id="wall-8" class="memo-container"></div></div></section>
+            <section id="feature-9" class="module"><h2>✍️ 9. 修辭改寫沙盒</h2><div class="card"><textarea id="input-9" class="text-input" placeholder="創意改寫..."></textarea><button class="btn-primary" onclick="submitSocial(9)">提交改寫 (+15分)</button><div id="wall-9" class="memo-container"></div></div></section>
+            <section id="feature-10" class="module"><h2>📖 10. 文字接龍小說</h2><div class="card"><div id="wall-10" class="memo-container" style="background:#f0f8ff; padding:15px; border-radius:8px; margin-bottom:15px;"></div><textarea id="input-10" class="text-input" placeholder="請接龍..."></textarea><button class="btn-primary" onclick="submitSocial(10)">提交劇情 (+20分)</button></div></section>
 
-            <!-- 新增模塊 11、12、13、14 -->
-            <section id="feature-11" class="module">
-                <h2>🎨 11. AI 魔法畫廊</h2>
-                <div class="card">
-                    <p style="margin-bottom:15px; color:#555;">請用 30 字以上詳細描寫「一隻未來的機械寵物」，AI 會幫你畫出來！</p>
-                    <textarea id="ai-input" class="text-input" placeholder="例如：這是一隻全身由銀色金屬打造的機械貓，眼睛閃爍著藍色的霓虹光芒..."></textarea>
-                    <button class="btn-primary" onclick="generateAI()">🔮 施展魔法生成圖片 (+30分)</button>
-                    <div id="ai-result" class="feedback hidden" style="margin-top:20px; text-align:center;"></div>
-                </div>
-            </section>
+            <section id="feature-11" class="module"><h2>🎨 11. AI 魔法畫廊</h2><div class="card"><textarea id="ai-input" class="text-input" placeholder="詳細描寫..."></textarea><button class="btn-primary" onclick="generateAI()">🔮 施展魔法生成圖片 (+30分)</button><div id="ai-result" class="feedback hidden"></div></div></section>
+            <section id="feature-12" class="module"><h2>🐉 12. 靈獸成長圖鑑</h2><div class="card" style="text-align:center;"><div id="big-pet-emoji" style="font-size: 8rem; margin: 20px 0;">🥚</div><h2 id="big-pet-name" style="color: #1976d2;">文字幼苗 (Lv.1)</h2></div></section>
+            <section id="feature-13" class="module"><h2>🎁 13. 抽卡盲盒</h2><div class="card" style="text-align:center;"><button class="btn-primary" style="font-size:1.5rem; padding:15px 40px;" onclick="drawGacha()">🎲 點擊抽卡 (50分)</button><div id="gacha-result" class="feedback hidden"></div></div></section>
+            <section id="feature-14" class="module"><h2>🏆 14. 榮譽排行榜</h2><div class="card"><table class="leaderboard"><tr><th>排名</th><th>同學</th><th>等級</th><th>積分</th></tr><tr><td>1</td><td>CTM 示例</td><td>散文大師</td><td>850</td></tr><tr style="background:#e3f2fd; font-weight:bold;"><td>3</td><td id="rank-my-name">你</td><td id="rank-my-level">文字幼苗</td><td><span id="rank-my-score">0</span></td></tr></table></div></section>
 
-            <section id="feature-12" class="module">
-                <h2>🐉 12. 靈獸成長圖鑑</h2>
-                <div class="card" style="text-align:center;">
-                    <h3 style="margin-bottom: 20px; color: #555;">你的專屬靈獸</h3>
-                    <div id="big-pet-emoji" style="font-size: 8rem; margin: 20px 0;">🥚</div>
-                    <h2 id="big-pet-name" style="color: #1976d2;">文字幼苗 (Lv.1)</h2>
-                    <p style="margin-top: 15px; color: #888;">努力答題獲取積分，讓靈獸進化成最終形態「散文飛龍」吧！</p>
-                </div>
-            </section>
-
-            <section id="feature-13" class="module">
-                <h2>🎁 13. 抽卡盲盒</h2>
-                <div class="card" style="text-align:center;">
-                    <p style="margin-bottom: 20px; font-size: 1.2rem;">每次抽卡消耗 <strong>50 積分</strong></p>
-                    <button class="btn-primary" style="font-size:1.5rem; padding:15px 40px;" onclick="drawGacha()">🎲 點擊抽卡</button>
-                    <div id="gacha-result" class="feedback hidden" style="margin-top:20px; font-size:1.3rem;"></div>
-                </div>
-            </section>
-
-            <section id="feature-14" class="module">
-                <h2>🏆 14. 榮譽排行榜</h2>
-                <div class="card">
-                    <table class="leaderboard">
-                        <tr><th>排名</th><th>同學</th><th>等級</th><th>積分</th></tr>
-                        <tr><td>1</td><td>CTM 示例</td><td>散文大師</td><td>850</td></tr>
-                        <tr><td>2</td><td>CTM 示例</td><td>修辭小獸</td><td>420</td></tr>
-                        <tr style="background:#e3f2fd; font-weight:bold;">
-                            <td>3</td><td id="rank-my-name">你</td><td id="rank-my-level">文字幼苗</td><td><span id="rank-my-score">0</span></td>
-                        </tr>
-                    </table>
-                </div>
-            </section>
-
-            <section id="feature-reading" class="module active">
-                <h2>📖 閱讀：《背影》全文節錄 (朱自清)</h2>
-                <div class="card" id="article-content">
-                    <p class="reading-p" style="line-height: 2; font-size: 1.15rem; color: #333; text-align: justify;">
-                        我與父親不相見已有二年餘了，我最不能忘記的是他的背影。那年冬天，祖母死了，父親的差使也交卸了，正是禍不單行的日子，我從北京到徐州，打算跟著父親奔喪回家。到徐州見著父親，看見滿院狼藉的東西，又想起祖母，不禁簌簌地流下眼淚。父親說：「事已如此，不必難過，好在天無絕人之路！」<br><br>
-                        我們過了江，進了車站。我買票，他忙著照看行李。行李太多了，得向腳夫行些小費，纔可過去。他便又忙著和他們講價錢。我那時真是聰明過分，總覺他說話不大漂亮，非自己插嘴不可。但他終於講定了價錢；就送我上車。<br><br>
-                        我看見他戴著黑布小帽，穿著黑布大馬褂，深青布棉袍，蹣跚地走到鐵道邊，慢慢探身下去，尚不大難。可是他穿過鐵道，要爬上那邊月台，就不容易了。他用兩手攀著上面，兩腳再向上縮；他肥胖的身子向左微傾，顯出努力的樣子。這時我看見他的背影，我的淚很快地流下來了。
-                    </p>
-                </div>
-            </section>
-            
-            <section id="feature-15" class="module">
-                <h2>📝 15. 專屬語文備忘錄</h2>
-                <div class="card"><div id="memo-list" class="memo-container"><p style="color: #888; text-align: center;">暫無筆記</p></div></div>
-            </section>
+            <section id="feature-reading" class="module"><h2>📖 閱讀：《背影》全文節錄</h2><div class="card" id="article-content"><p class="reading-p" style="line-height: 2; font-size: 1.15rem; color: #333;">我與父親不相見已有二年餘了...</p></div></section>
+            <section id="feature-15" class="module"><h2>📝 15. 專屬語文備忘錄</h2><div class="card"><div id="memo-list" class="memo-container"><p style="color: #888; text-align: center;">暫無筆記</p></div></div></section>
         </main>
     </div>
     <script src="script.js"></script>
