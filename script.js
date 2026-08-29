@@ -1,5 +1,5 @@
 // ========================================================
-// 1. FIREBASE 初始化與斷線保護
+// 1. FIREBASE 初始化與登入邏輯
 // ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I",
@@ -24,13 +24,12 @@ try {
 
 function checkManualLogin() {
     const savedManualUser = sessionStorage.getItem('manualUser');
-    if (savedManualUser) { handleLoginSuccess(JSON.parse(savedManualUser)); } 
-    else { document.getElementById('login-screen').classList.remove('hidden'); }
+    if (savedManualUser) { 
+        handleLoginSuccess(JSON.parse(savedManualUser)); 
+    } 
+    // 不需要寫移除 hidden，因為 HTML 已經預設顯示了！
 }
 
-// ========================================================
-// 2. 帳號與登入邏輯
-// ========================================================
 function loginWithGoogle() {
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -50,8 +49,8 @@ function loginManually() {
 
 function handleLoginSuccess(user) {
     currentUser = user;
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('login-screen').classList.add('hidden'); // 登入成功才隱藏
+    document.getElementById('dashboard').classList.remove('hidden'); // 顯示系統
     document.getElementById('user-display-name').innerText = user.displayName;
     loadMemos(user.uid);
     renderQuizzes(); 
@@ -83,7 +82,7 @@ function switchTab(tabId, event) {
 }
 
 // ========================================================
-// 3. 螢光筆與備忘錄系統
+// 3. 螢光筆系統
 // ========================================================
 let pendingSelectedText = "";
 const mobileBar = document.getElementById('mobile-highlight-bar');
@@ -141,7 +140,7 @@ function loadMemos(uid) {
 }
 
 // ========================================================
-// 4. 動態題庫引擎 (為防斷裂，先各保留 1 題測試)
+// 4. 動態題庫引擎 (防斷裂版)
 // ========================================================
 const idiomsData = [{ question: "【炙手可熱】請判斷以下哪一個句子正確使用了此成語？", options: ["A. 夏天炎熱，外面炙手可熱。", "B. 手機設計新穎，炙手可熱。", "C. 演唱會門票炙手可熱。", "D. 丞相在朝廷中炙手可熱，百官爭相討好。"], correctIndex: 3, explanation: "【炙手可熱】比喻權勢大、氣焰盛，帶貶義。" }];
 const grammarData = [{ question: "請找出並修正語病：「由於連日暴雨，使到低窪地區發生了嚴重水浸。」", options: ["A. 應刪去「由於」或「使到」。", "B. 「發生」不能配「水浸」。", "C. 「嚴重」和「水浸」重複。", "D. 「暴雨」不會導致「水浸」。"], correctIndex: 0, explanation: "濫用介詞導致主語缺失。" }];
