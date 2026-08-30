@@ -7,32 +7,23 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <!-- 🌟 引入物理引擎，實現 Google Gravity 效果 🌟 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* 物理書包畫布 */
-        #physics-canvas-container { position: relative; width: 100%; height: 300px; background: #e0f2f1; border-radius: 8px; overflow: hidden; margin-bottom: 25px; border: 2px solid #00796b; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
-        .physics-item { position: absolute; font-size: 2.5rem; user-select: none; cursor: grab; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
-        .physics-item:active { cursor: grabbing; }
-    </style>
 </head>
 <body>
     <div id="login-screen" class="login-screen">
         <div class="login-box">
             <h2>🚀 中文互動宇宙</h2>
-            <p>請使用學校帳號登入系統</p>
-            <button class="btn-google" onclick="loginWithGoogle()">
-                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                學校 Google 帳號登入
-            </button>
-            <div class="separator"><span>或備用帳號登入</span></div>
-            <div class="manual-login">
-                <!-- 🔒 移除所有密碼提示，確保安全 -->
-                <input type="text" id="username-input" placeholder="請輸入學號">
-                <input type="password" id="password-input" placeholder="請輸入密碼">
-                <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="loginManually()">安全登入</button>
+            <p>請輸入學號與密碼安全登入</p>
+            <div class="manual-login" style="margin-top: 20px;">
+                <input type="text" id="username-input" placeholder="請輸入學號 (如 stu01)">
+                <input type="password" id="password-input" placeholder="請輸入安全密碼">
+                <button class="btn-primary" style="width:100%; margin-top:10px; font-weight:bold; font-size:1.1rem; padding:15px;" onclick="loginManually()">🔒 安全登入</button>
             </div>
+            <div class="separator" style="margin-top:25px;"><span>(綁定 Google 請聯繫老師)</span></div>
+            <button class="btn-google" onclick="loginWithGoogle()" style="opacity: 0.6;">
+                學校 Google 帳號登入 (目前維護中)
+            </button>
         </div>
     </div>
 
@@ -73,7 +64,7 @@
                 <li><a href="#" onclick="switchTab('feature-4', event)">4. 古今譯配對</a></li>
                 <li><a href="#" onclick="switchTab('feature-5', event)">5. 一詞多義打怪</a></li>
                 <li><a href="#" onclick="switchTab('feature-6', event)">6. 古今異義找碴</a></li>
-                <li><a href="#" onclick="switchTab('feature-7', event)">7. 閱讀地圖 (分難度)</a></li>
+                <li><a href="#" onclick="switchTab('feature-7', event)">7. 閱讀地圖</a></li>
 
                 <li class="nav-title">三、寫作思維 (無限題)</li>
                 <li><a href="#" onclick="switchTab('feature-16', event)">16. 題目立意偵探</a></li>
@@ -91,7 +82,7 @@
                 <li><a href="#" onclick="switchTab('feature-15', event)">📝 15. 專屬備忘錄</a></li>
                 
                 <li class="nav-title">六、遊戲系統</li>
-                <li><a href="#" onclick="switchTab('feature-12', event)">🐉 12. 靈獸圖鑑 (99級)</a></li>
+                <li><a href="#" onclick="switchTab('feature-12', event)">🐉 12. 靈獸進化 (100級)</a></li>
                 <li><a href="#" onclick="switchTab('feature-13', event)">🎁 13. 抽卡盲盒</a></li>
                 <li><a href="#" onclick="switchTab('feature-14', event)">🏆 14. 榮譽排行榜</a></li>
             </ul>
@@ -117,39 +108,28 @@
             <section id="feature-2a" class="module"><h2>🕵️ 2a. 語病通緝令 (日更)</h2><div id="quiz-container-2a"></div></section>
             <section id="feature-2b" class="module"><h2>🔍 2b. 錯別字偵探 (日更)</h2><div id="quiz-container-2b"></div></section>
 
-            <section id="feature-3" class="module"><h2>🎭 3. 古人表情包 (無限刷題)</h2><div id="quiz-container-3"></div></section>
+            <section id="feature-3" class="module"><h2>🎭 3. 古人表情包 (無限題)</h2><div id="quiz-container-3"></div></section>
             <section id="feature-4" class="module"><h2>🔗 4. 古今譯配對</h2><div class="card"><div style="display: flex; gap: 15px;"><div id="match-left" style="flex: 1; display: flex; flex-direction: column; gap: 10px;"></div><div id="match-right" style="flex: 1; display: flex; flex-direction: column; gap: 10px;"></div></div><div id="match-feedback" class="feedback hidden" style="margin-top:20px;"></div></div></section>
             <section id="feature-5" class="module"><h2>⚔️ 5. 一詞多義打怪</h2><div class="card" style="text-align: center;"><div style="font-size: 5rem; margin: 10px 0;" id="boss-emoji">👾</div><div style="width: 100%; background: #eee; height: 15px; border-radius: 10px; margin-bottom: 20px; overflow: hidden;"><div id="boss-hp" style="width: 100%; background: #dc3545; height: 100%; transition: width 0.3s;"></div></div><h3 id="boss-question" style="margin-bottom: 20px; font-size: 1.3rem; color: #1976d2;">載入中...</h3><div class="options" id="boss-options"></div><div id="boss-feedback" class="feedback hidden"></div></div></section>
-            <section id="feature-6" class="module"><h2>🔍 6. 古今異義找碴 (無限刷題)</h2><div id="quiz-container-6"></div></section>
-            <section id="feature-7" class="module"><h2>🗺️ 7. 閱讀地圖</h2><div class="card"><h3 style="margin-bottom: 15px; color:#1976d2;">文言文挑戰</h3><p class="reading-p" style="margin-bottom: 20px; line-height: 1.8; background: #f9f9f9; padding: 15px; border-radius: 8px;">乃取一葫蘆置於地，以錢覆其口，徐以杓酌油瀝之，自錢孔入，而錢不濕。</p><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="btn-primary" style="flex:1; background:#4caf50;" onclick="loadReadingQuiz(1)">🌱 基礎(10分)</button><button class="btn-primary" style="flex:1; background:#ff9800;" onclick="loadReadingQuiz(2)">🌲 進階(15分)</button><button class="btn-primary" style="flex:1; background:#d32f2f;" onclick="loadReadingQuiz(3)">🔥 挑戰(20分)</button></div><div id="reading-quiz-container">請點擊上方難度開始。</div></div></section>
+            <section id="feature-6" class="module"><h2>🔍 6. 古今異義找碴 (無限題)</h2><div id="quiz-container-6"></div></section>
+            <section id="feature-7" class="module"><h2>🗺️ 7. 閱讀地圖 (隨機題庫)</h2><div class="card"><h3 style="margin-bottom: 15px; color:#1976d2;">文言文挑戰</h3><p class="reading-p" style="margin-bottom: 20px; line-height: 1.8; background: #f9f9f9; padding: 15px; border-radius: 8px;">乃取一葫蘆置於地，以錢覆其口，徐以杓酌油瀝之，自錢孔入，而錢不濕。</p><div style="display: flex; gap: 10px; margin-bottom: 20px;"><button class="btn-primary" style="flex:1; background:#4caf50;" onclick="loadReadingQuiz(1)">🌱 基礎(10分)</button><button class="btn-primary" style="flex:1; background:#ff9800;" onclick="loadReadingQuiz(2)">🌲 進階(15分)</button><button class="btn-primary" style="flex:1; background:#d32f2f;" onclick="loadReadingQuiz(3)">🔥 挑戰(20分)</button></div><div id="reading-quiz-container">請點擊上方難度開始。</div></div></section>
 
-            <section id="feature-16" class="module"><h2>🕵️‍♂️ 16. 題目立意偵探 (無限刷題)</h2><div id="quiz-container-16"></div></section>
-            <section id="feature-17" class="module"><h2>⚖️ 17. 記描抒取材裁判 (無限刷題)</h2><div id="quiz-container-17"></div></section>
-            <section id="feature-18" class="module"><h2>📜 18. 議論文邏輯大法官 (無限刷題)</h2><div id="quiz-container-18"></div></section>
+            <section id="feature-16" class="module"><h2>🕵️‍♂️ 16. 題目立意偵探 (無限題)</h2><div id="quiz-container-16"></div></section>
+            <section id="feature-17" class="module"><h2>⚖️ 17. 記描抒取材裁判 (無限題)</h2><div id="quiz-container-17"></div></section>
+            <section id="feature-18" class="module"><h2>📜 18. 議論文邏輯大法官 (無限題)</h2><div id="quiz-container-18"></div></section>
 
             <section id="feature-8" class="module"><h2>📚 8. 佳句提煉牆</h2><div class="card"><textarea id="input-8" class="text-input" placeholder="例如：我最不能忘記的是他的背影..."></textarea><button class="btn-primary" onclick="submitSocial(8)">發佈上牆 (+10積分/金幣)</button><div id="wall-8" class="memo-container"></div></div></section>
-            
             <section id="feature-9" class="module">
                 <h2>✍️ 9. 修辭改寫沙盒</h2>
                 <div class="card">
-                    <div style="background:#fff3e0; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #ff9800;">
-                        <strong>📅 本週挑戰：</strong><span id="sandbox-daily-q">載入中...</span>
-                    </div>
+                    <div style="background:#fff3e0; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #ff9800;"><strong>📅 本週挑戰：</strong><span id="sandbox-daily-q">載入中...</span></div>
                     <textarea id="input-9" class="text-input" placeholder="寫下你的創意改寫，提交後即可觀摩同學的作品！"></textarea>
                     <button class="btn-primary" onclick="submitSandbox()">提交改寫 (+15積分/金幣)</button>
                     <div id="sandbox-lock" style="text-align:center; padding:30px; color:#888; background:#f9f9f9; margin-top:20px; border-radius:8px;">🔒 必須先提交你自己的改寫，才能觀摩同學的作品喔！</div>
                     <div id="wall-9" class="memo-container hidden" style="margin-top:20px;"></div>
                 </div>
             </section>
-            <section id="feature-10" class="module">
-                <h2>📖 10. 文字接龍小說</h2>
-                <div class="card">
-                    <p style="color:#555; margin-bottom:10px;"><strong>故事背景：</strong>今天放學後，我在課桌抽屜裡發現了一張沒有署名的紙條，上面寫著...</p>
-                    <div id="wall-10" class="memo-container" style="background:#f0f8ff; padding:15px; border-radius:8px; margin-bottom:15px;"></div>
-                    <textarea id="input-10" class="text-input" placeholder="接下來發生了什麼事？請接龍..."></textarea>
-                    <button class="btn-primary" onclick="submitSocial(10)">提交劇情 (+20積分/金幣)</button>
-                </div>
-            </section>
+            <section id="feature-10" class="module"><h2>📖 10. 文字接龍小說</h2><div class="card"><div id="wall-10" class="memo-container" style="background:#f0f8ff; padding:15px; border-radius:8px; margin-bottom:15px;"></div><textarea id="input-10" class="text-input" placeholder="接下來發生了什麼事？請接龍..."></textarea><button class="btn-primary" onclick="submitSocial(10)">提交劇情 (+20積分/金幣)</button></div></section>
 
             <section id="feature-11" class="module">
                 <h2>🎨 11. AI 魔法畫廊</h2>
@@ -164,24 +144,18 @@
             </section>
             
             <section id="feature-12" class="module">
-                <h2>🐉 12. 靈獸進化圖鑑 (99級)</h2>
+                <h2>🐉 12. 靈獸進化圖鑑 (100 級系統)</h2>
                 <div class="card" style="text-align:center;">
                     <div id="big-pet-emoji" style="font-size: 6rem; margin: 10px 0;">🥚</div>
-                    <h2 id="big-pet-name" style="color: #1976d2; margin-bottom: 20px;">載入中...</h2>
+                    <h2 id="big-pet-name" style="color: #1976d2; margin-bottom: 20px;">文字幼苗 (Lv.1)</h2>
                     <p style="color:#555; margin-bottom:20px; font-weight:bold;">🔥 距離下一級還差：<span id="next-level-req" style="color:#d32f2f;">0</span> 積分</p>
                     <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
-                    <h4 style="color:#555; margin-bottom:15px; text-align:left;">📖 99級指數進化表 (等級 = √積分)：</h4>
-                    <div style="background:#f9f9f9; padding:15px; border-radius:8px; text-align:left; font-size:0.9rem; line-height:1.8;">
-                        <div>🌱 Lv.1 - 9 (初學書童)</div>
-                        <div>🌿 Lv.10 - 19 (勤奮青苗)</div>
-                        <div>📚 Lv.20 - 29 (通達行者)</div>
-                        <div>✍️ Lv.30 - 39 (睿智精靈)</div>
-                        <div>🖋️ Lv.40 - 49 (超凡大師)</div>
-                        <div>🦄 Lv.50 - 59 (入聖宗師)</div>
-                        <div>🦅 Lv.60 - 69 (登峰泰斗)</div>
-                        <div>🐉 Lv.70 - 79 (造極飛龍)</div>
-                        <div>🌟 Lv.80 - 89 (神話神獸)</div>
-                        <div>🌌 Lv.90 - 99 (宇宙霸主)</div>
+                    <h4 style="color:#555; margin-bottom:15px; text-align:left;">📖 1-100級 指數所需積分對照表：</h4>
+                    <div style="max-height: 300px; overflow-y: auto; background: #f9f9f9; border-radius: 8px; border: 1px solid #ddd;">
+                        <table class="leaderboard" id="level-table">
+                            <tr><th style="background:#eee;">等級 (Lv)</th><th style="background:#eee;">稱號</th><th style="background:#eee;">升級所需總積分</th></tr>
+                            <tbody id="level-table-body"></tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -190,23 +164,23 @@
                 <h2>🎁 13. 抽卡盲盒</h2>
                 <div class="card" style="text-align:center;">
                     <p style="margin-bottom: 10px; font-size: 1.2rem; color: #d84315; font-weight: bold;">每次抽卡消耗 <strong>500 金幣</strong></p>
+                    
                     <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 20px; display: inline-block; width: 100%; max-width: 500px; font-size: 0.95rem; line-height: 1.8;">
                         <div style="border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 8px; font-weight: bold;">📜 盲盒機率表：</div>
-                        <div style="color: #d32f2f;"><strong>【R級極罕】(1%)</strong> 抵消紅牌 🛑</div>
-                        <div style="color: #4caf50;"><strong>【R級極罕】(1%)</strong> 獲綠色牌(與老師打球) 🍀</div>
-                        <div style="color: #9c27b0;"><strong>【S級稀有】(3%)</strong> 自選座位一天 🎵</div>
-                        <div style="color: #ff9800;"><strong>【A 級】(5%)</strong> 免答問題一次 🤫</div>
-                        <div style="color: #2196f3;"><strong>【A 級】(5%)</strong> 小懲罰豁免權 🛡️</div>
-                        <div style="color: #00796b;"><strong>【B 級】(40%)</strong> 背包裝備 (文具物理引擎) 🎒</div>
-                        <div style="color: #757575;"><strong>【B 級】(45%)</strong> 專屬 Emoji 😎</div>
+                        <div style="color: #d32f2f;"><strong>【SP 極罕】(1%)</strong> 抵消紅牌 🛑</div>
+                        <div style="color: #4caf50;"><strong>【SP 極罕】(1%)</strong> 獲綠色牌(與老師打球) 🍀</div>
+                        <div style="color: #9c27b0;"><strong>【UR 稀有】(3%)</strong> 自選座位一天 🎵</div>
+                        <div style="color: #ff9800;"><strong>【SR 優良】(5%)</strong> 免答問題一次 🤫</div>
+                        <div style="color: #2196f3;"><strong>【SR 優良】(5%)</strong> 小懲罰豁免權 🛡️</div>
+                        <div style="color: #00796b;"><strong>【R 裝備】(40%)</strong> 背包卡通文具裝備 🎒</div>
+                        <div style="color: #757575;"><strong>【N 稱號】(45%)</strong> 專屬頭像 Emoji 😎</div>
                     </div>
                     <br>
                     <button class="btn-primary" style="font-size:1.5rem; padding:15px 40px; margin-bottom: 20px;" onclick="drawGacha()">🎲 點擊抽卡</button>
                     <div id="gacha-result" class="feedback hidden" style="margin-bottom:20px; font-size:1.3rem;"></div>
                     
                     <div id="inventory-container" class="hidden" style="margin-top: 30px; text-align: left;">
-                        <h4 style="margin-bottom:10px; color:#00796b; border-bottom: 2px solid #eee; padding-bottom: 5px;">🎒 我的虛擬書包 (用滑鼠抓起來丟丟看！)</h4>
-                        <!-- 🌟 物理引擎畫布 🌟 -->
+                        <h4 style="margin-bottom:10px; color:#00796b; border-bottom: 2px solid #eee; padding-bottom: 5px;">🎒 我的實體書包 (用滑鼠/手指抓起來丟丟看！)</h4>
                         <div id="physics-canvas-container"></div>
 
                         <h4 style="margin-bottom:10px; color:#d84315; border-bottom: 2px solid #eee; padding-bottom: 5px;">🃏 我的特權卡 (需當面核銷)</h4>
@@ -219,7 +193,7 @@
                 </div>
             </section>
 
-            <section id="feature-14" class="module"><h2>🏆 14. 榮譽排行榜</h2><div class="card"><table class="leaderboard" id="global-leaderboard"><tr><th>排名</th><th>同學</th><th style="color:#d84315;">本週積分</th><th>總積分</th></tr></table></div></section>
+            <section id="feature-14" class="module"><h2>🏆 14. 榮譽排行榜 (每週日結算)</h2><div class="card"><table class="leaderboard" id="global-leaderboard"><tr><th>排名</th><th>同學</th><th style="color:#d84315;">本週積分</th><th>總積分</th></tr></table></div></section>
 
             <section id="feature-reading" class="module active">
                 <h2>📖 散文閱讀區</h2>
@@ -236,9 +210,8 @@
             <section id="feature-15" class="module">
                 <h2>📝 15. 專屬語文備忘錄</h2>
                 <div class="card">
-                    <p style="margin-bottom:10px; color:#555;">可手動輸入佳句或在閱讀區畫重點：</p>
                     <div style="display:flex; gap:10px; margin-bottom:20px;">
-                        <input type="text" id="manual-memo-input" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;" placeholder="手動輸入...">
+                        <input type="text" id="manual-memo-input" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:8px;" placeholder="手動輸入佳句...">
                         <button class="btn-primary" onclick="addManualMemo()">＋ 儲存</button>
                     </div>
                     <div id="memo-list" class="memo-container"></div>
