@@ -6,69 +6,7 @@ let currentUser = null; let memos = []; let userScore = 0; let userCoins = 0; le
 let userEmojis = []; let equippedEmoji = ""; let userItems = []; let userBags = []; 
 let engineStarted = false; let engine, render, runner, world;
 
-// 🔒 11組嚴格白名單帳號
-const secureAccounts = {
-    "admin_ctm": { pwd: "K7m@P9q#", role: "teacher", name: "CTM 老師" },
-    "stu01": { pwd: "x4V!n8B", role: "student", name: "學生 01" }, "stu02": { pwd: "m2C@z9L", role: "student", name: "學生 02" },
-    "stu03": { pwd: "p5R#k3W", role: "student", name: "學生 03" }, "stu04": { pwd: "t8J$y2N", role: "student", name: "學生 04" },
-    "stu05": { pwd: "h3F%d7X", role: "student", name: "學生 05" }, "stu06": { pwd: "q9M^b4C", role: "student", name: "學生 06" },
-    "stu07": { pwd: "q9M^b4C", role: "student", name: "學生 07" }, "stu08": { pwd: "q9M^b4C", role: "student", name: "學生 08" },
-    "stu09": { pwd: "q9M^b4C", role: "student", name: "學生 09" }, "stu10": { pwd: "q9M^b4C", role: "student", name: "學生 10" }
-};
 
-function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-
-try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); 
-    firebase.auth().onAuthStateChanged((user) => { if (user) { handleLoginSuccess({ displayName: user.displayName, email: user.email, uid: user.uid, role: 'teacher' }); } else { checkManualLogin(); } });
-} catch (error) { checkManualLogin(); }
-
-function checkManualLogin() { const saved = sessionStorage.getItem('manualUser'); if (saved) { handleLoginSuccess(JSON.parse(saved)); } }
-function loginWithGoogle() { try { const provider = new firebase.auth.GoogleAuthProvider(); firebase.auth().languageCode = 'zh-HK'; firebase.auth().signInWithPopup(provider).catch(()=>alert("維護中，請用手動登入")); } catch (e) { alert("請使用手動登入！"); } }
-
-function loginManually() {
-    const username = document.getElementById('username-input').value.trim();
-    const password = document.getElementById('password-input').value.trim();
-    if (secureAccounts[username] && secureAccounts[username].pwd === password) {
-        const userObj = { displayName: secureAccounts[username].name, email: username+"@local", uid: username, role: secureAccounts[username].role }; 
-        sessionStorage.setItem('manualUser', JSON.stringify(userObj)); handleLoginSuccess(userObj);
-    } else { alert("❌ 帳號或密碼錯誤！"); }
-}
-
-function handleLoginSuccess(user) {
-    currentUser = user;
-    document.getElementById('login-screen').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden');
-    if (user.role === 'teacher') { const adminMenu = document.getElementById('admin-menu'); if(adminMenu) adminMenu.classList.remove('hidden'); loadAdminDashboard(); }
-    
-    if(db) {
-        const currentWeek = getWeekNumber(new Date());
-        const userRef = db.collection('users').doc(user.uid);
-        userRef.get().then((doc) => {
-            if (doc.exists) {
-                let data = doc.data();
-                userScore = data.score || 0; userCoins = data.coins || 0; weeklyScore = data.weeklyScore || 0;
-                userEmojis = data.emojis || []; equippedEmoji = data.equippedEmoji || ""; userItems = data.items || []; userBags = data.bags || [];
-                if(data.lastWeek !== currentWeek) { weeklyScore = 0; userRef.update({ weeklyScore: 0, lastWeek: currentWeek }); }
-                if(user.role === 'teacher') { userScore = 99999; userCoins = 99999; } else { userRef.update({ lastLogin: new Date().toLocaleString() }); }
-            } else {
-                userScore = user.role === 'teacher' ? 99999 : 0; userCoins = user.role === 'teacher' ? 99999 : 0; weeklyScore = 0; userBags = [];
-                if(user.role !== 'teacher') { userRef.set({ name: user.displayName, email: user.email, score: 0, coins: 0, weeklyScore: 0, lastWeek: currentWeek, emojis: [], equippedEmoji: "", items: [], bags: [], role: user.role, lastLogin: new Date().toLocaleString() }); }
-            }
-            updateScoreUI(); renderInventory(); renderLevelTable();
-        });
-    }
-    loadMemos(user.uid); renderQuizzes(); initMatchGame(); initBossGame(); loadSocialDataFromCloud(); loadLeaderboard(); setupSandbox();
-    document.getElementById('reading-title').innerText = articles[0].title; document.getElementById('reading-text').innerHTML = articles[0].text;
-}
-
-function logout() { try { firebase.auth().signOut(); } catch(e) {} sessionStorage.removeItem('manualUser'); window.location.reload(); }
-function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
-function switchTab(tabId, event) { 
-    document.querySelectorAll('.module').forEach(mod => mod.classList.remove('active')); document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active')); 
-    const target = document.getElementById(tabId); if(target) target.classList.add('active'); if(event) event.target.classList.add('active'); 
-    if(window.innerWidth <= 768) { document.querySelector('.sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); } 
-    if(tabId === 'feature-reading') startReadingTimer();
-    if(tabId === 'feature-13') setTimeout(initPhysicsEngine, 500); 
-}
 
 // ========================================================
 // 2. 🐉 100級 指數動態稱號系統
