@@ -3,10 +3,10 @@
 // This is our new "Master Controller" or "Entry Point".
 // ========================================================
 
-// 1. We IMPORT from our new modules.
-// We use './' because they are in the same 'modules' folder.
+// 1. We IMPORT from all our new modules to make sure they are loaded.
 import { checkManualLogin } from './auth.js';
-import './ui.js'; // We just need to import this to make its window functions available.
+import './ui.js';
+import './quiz-engine.js'; // <-- ADD THIS LINE
 
 // 2. We call the initial functions needed when the page loads.
 console.log("Main.js has started...");
