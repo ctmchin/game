@@ -1,5 +1,6 @@
+// This file holds the THIRD HALF of the meme questions.
 
-  
+export const memeData_part3 = [
 {
     emoji: "🛌",
     question: "明明身體已經很累了，但因為腦海中一直想著暗戀的對象，在床上翻來覆去怎麼也睡不著，這叫甚麼症狀？",
