@@ -1,6 +1,6 @@
-// This file now imports the two parts and combines them into one.
+// This file now imports the three parts and combines them into one.
 
-// 1. Import the two split arrays.
+// 1. Import the three split arrays.
 import { memeData_part1 } from './memes-part1.js';
 import { memeData_part2 } from './memes-part2.js';
 import { memeData_part3 } from './memes-part3.js';
