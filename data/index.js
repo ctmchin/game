@@ -3,4 +3,5 @@
 // This makes it much easier to import our data later!
 
 export * from './idioms.js';
-export * from './grammar.js'
+export * from './grammar.js';
+export * from './typos.js'
