@@ -29,10 +29,11 @@ export function renderQuizzes() {
     renderDailyQuiz('quiz-container-2a', allData.grammarData, 'normal');
     renderDailyQuiz('quiz-container-2b', allData.typoData, 'normal');
     renderInfiniteQuiz('quiz-container-3', allData.memeData, 'normal', true);
-    renderInfiniteQuiz('quiz-container-6', allData.ancientModernData, 'normal');
-    renderInfiniteQuiz('quiz-container-16', allData.themeData, 'suggested');
-    renderInfiniteQuiz('quiz-container-17', allData.materialData, 'suggested');
-    renderInfiniteQuiz('quiz-container-18', allData.logicData, 'suggested');
+    // --- TEMPORARILY DISABLED ---
+    // renderInfiniteQuiz('quiz-container-6', allData.ancientModernData, 'normal');
+    // renderInfiniteQuiz('quiz-container-16', allData.themeData, 'suggested');
+    // renderInfiniteQuiz('quiz-container-17', allData.materialData, 'suggested');
+    // renderInfiniteQuiz('quiz-container-18', allData.logicData, 'suggested');
 }
 
 function renderDailyQuiz(containerId, dataArray, type = 'normal', isMeme = false) {
