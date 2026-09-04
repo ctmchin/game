@@ -4,4 +4,6 @@
 
 export * from './idioms.js';
 export * from './grammar.js';
-export * from './typos.js'
+export * from './typos.js';
+export * from './meme.js';
+
