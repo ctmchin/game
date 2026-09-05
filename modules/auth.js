@@ -1,18 +1,9 @@
 // ========================================================
-// MODULE: auth.js
-// Handles all user login, logout, and session management.
+// MODULE: auth.js (New Simplified Version)
 // ========================================================
 
-// We will import these from other modules we create later.
-// For now, they are commented out.
-// import { loadAdminDashboard } from './admin.js';
-// import { updateScoreUI, renderInventory, renderLevelTable } from './profile.js';
-// import { loadMemos } from './memo.js';
-// import { renderQuizzes } from './quiz-engine.js';
-// import { initMatchGame, initBossGame } from './games.js';
-// import { loadSocialDataFromCloud, setupSandbox } from './social.js';
-// import { loadLeaderboard } from './leaderboard.js';
-// import { startReadingTimer } from './reading.js';
+// Import the auth service from our new firebase module
+import { auth } from './firebase.js';
 
 // This is the hardcoded list of users.
 const secureAccounts = {
@@ -24,14 +15,8 @@ const secureAccounts = {
     "stu09": { pwd: "q9M^b4C", role: "student", name: "學生 09" }, "stu10": { pwd: "q9M^b4C", role: "student", name: "學生 10" }
 };
 
-function getWeekNumber(d) {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
-
-export function checkManualLogin() {
+// This function is called when the page loads to check if we are already logged in.
+function checkManualLogin() {
     const saved = sessionStorage.getItem('manualUser');
     if (saved) {
         handleLoginSuccess(JSON.parse(saved));
@@ -39,13 +24,9 @@ export function checkManualLogin() {
 }
 
 function loginWithGoogle() {
-    try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().languageCode = 'zh-HK';
-        firebase.auth().signInWithPopup(provider).catch(() => alert("維護中，請用手動登入"));
-    } catch (e) {
-        alert("請使用手動登入！");
-    }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.languageCode = 'zh-HK';
+    auth.signInWithPopup(provider).catch(() => alert("維護中，請用手動登入"));
 }
 
 function loginManually() {
@@ -62,35 +43,31 @@ function loginManually() {
 }
 
 function handleLoginSuccess(user) {
-    // We will make currentUser global for now to fix onclick issues.
-    window.currentUser = user;
+    console.log("Login success! User:", user.displayName);
+    window.currentUser = user; // Make user info available globally
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
-
-    // This part will be uncommented and fixed as we create more modules.
-    // if (user.role === 'teacher') {
-    //     const adminMenu = document.getElementById('admin-menu');
-    //     if (adminMenu) adminMenu.classList.remove('hidden');
-    //     loadAdminDashboard();
-    // }
-    
-    // ... a lot of function calls here that we will fix later ...
-    console.log("Login success! User:", user.displayName);
-    // For now, we just call the quiz renderer
-    window.renderQuizzes();
+    // We have temporarily removed the call to renderQuizzes() to prevent errors.
 }
 
 function logout() {
-    try {
-        firebase.auth().signOut();
-    } catch (e) { /* ignore */ }
+    auth.signOut().catch(() => {});
     sessionStorage.removeItem('manualUser');
     window.location.reload();
 }
 
-// ========================================================
-// THE FIX: Make the functions called by HTML public again.
-// ========================================================
+// Make the functions public so the HTML buttons can find them.
 window.loginManually = loginManually;
 window.loginWithGoogle = loginWithGoogle;
 window.logout = logout;
+
+// Listen for authentication state changes
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // This handles Google login success
+        handleLoginSuccess({ displayName: user.displayName, email: user.email, uid: user.uid, role: 'teacher' });
+    } else {
+        // This handles the initial page load
+        checkManualLogin();
+    }
+});
