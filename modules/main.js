@@ -1,10 +1,10 @@
 // ========================================================
-// MODULE: main.js (Newest, Simplest Version)
+// MODULE: main.js (Master Controller)
 // ========================================================
 
-// We only import the two modules needed to make the login page work.
-// This prevents any errors from the other unfinished modules.
+// We import the other modules to turn them on.
 import './firebase.js';
 import './auth.js';
+import './ui.js'; // <-- ADD THIS LINE
 
-console.log("Main controller has loaded Firebase and Auth systems.");
+console.log("Main controller has loaded Firebase, Auth, and UI systems.");
