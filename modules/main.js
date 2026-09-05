@@ -1,14 +1,10 @@
 // ========================================================
-// MODULE: main.js
+// MODULE: main.js (Newest, Simplest Version)
 // ========================================================
 
-// 1. We IMPORT from all our new modules to make sure they are loaded in the correct order.
-import { checkManualLogin } from './auth.js';
-import './ui.js';
-import './quiz-engine.js'; // <-- THE FIX: This line was missing.
+// We only import the two modules needed to make the login page work.
+// This prevents any errors from the other unfinished modules.
+import './firebase.js';
+import './auth.js';
 
-// 2. We call the initial functions needed when the page loads.
-console.log("Main.js has started...");
-
-// Check if the user is already logged in from a previous session.
-checkManualLogin();
+console.log("Main controller has loaded Firebase and Auth systems.");
