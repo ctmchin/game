@@ -1,7 +1,6 @@
 // ========================================================
 // 1. FIREBASE 初始化 & 絕對安全帳號認證
 // ========================================================
-const firebaseConfig = { apiKey: "AIzaSyBXTjkrXmiLhp64MSBU1Ai5Iiv1EJfwA3I", authDomain: "ctm-game.firebaseapp.com", projectId: "ctm-game", storageBucket: "ctm-game.firebasestorage.app", messagingSenderId: "204941638255", appId: "1:204941638255:web:f23470bb681e9dac6eeb9a" };
 let currentUser = null; let memos = []; let userScore = 0; let userCoins = 0; let weeklyScore = 0; let db = null;
 let userEmojis = []; let equippedEmoji = ""; let userItems = []; let userBags = []; 
 let engineStarted = false; let engine, render, runner, world;
