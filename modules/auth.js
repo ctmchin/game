@@ -18,14 +18,19 @@ const secureAccounts = {
 // This function is called after any successful login
 function handleLoginSuccess(user) {
     console.log("Login success! User:", user.displayName);
-    window.currentUser = user; // Make user info available globally
+    window.currentUser = user;
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
 
-    // Now we call the functions to show the content
-    if (window.updateScoreUI) window.updateScoreUI();
-    if (window.renderQuizzes) window.renderQuizzes();
+    // --- THE FIX: Call the functions to display user info and quizzes ---
+    if (window.updateScoreUI) {
+        window.updateScoreUI();
+    }
+    if (window.renderQuizzes) {
+        window.renderQuizzes();
+    }
 }
+
 
 // This function checks for a saved manual login session
 function checkManualLogin() {
