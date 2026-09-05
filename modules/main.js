@@ -1,11 +1,10 @@
 // ========================================================
-// MODULE: main.js (Current Correct Version)
+// MODULE: main.js (Master Controller)
 // ========================================================
-
-// We are only loading the systems that we have fixed.
 import './firebase.js';
-import './auth.js';
+import './profile.js';      // <-- Turn on the profile system
+import './quiz-engine.js';   // <-- Turn on the quiz system
 import './ui.js';
-import './reading.js';
+import './auth.js';          // <-- Auth is last, as it depends on the others
 
-console.log("Main controller has loaded Firebase, Auth, UI, and Reading systems.");
+console.log("All systems loaded.");
