@@ -44,10 +44,14 @@ function loginManually() {
 
 function handleLoginSuccess(user) {
     console.log("Login success! User:", user.displayName);
-    window.currentUser = user; // Make user info available globally
+    window.currentUser = user;
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
-    // We have temporarily removed the call to renderQuizzes() to prevent errors.
+
+    // --- THE FIX: Add this line back in ---
+    if (window.renderQuizzes) {
+        window.renderQuizzes();
+    }
 }
 
 function logout() {
