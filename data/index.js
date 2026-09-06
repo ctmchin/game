@@ -7,3 +7,11 @@ export * from './grammar.js';
 export * from './typos.js';
 export * from './meme.js';
 
+// Combined datasets with part1/part2/part3 placeholders
+export * from './ancient-modern.js';
+export * from './theme.js';
+export * from './material.js';
+export * from './logic.js';
+
+// Optional: articles for the reading area (already supported)
+export * from './articles.js';

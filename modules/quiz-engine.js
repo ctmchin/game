@@ -1,5 +1,5 @@
 // ========================================================
-// MODULE: quiz-engine.js (fixed)
+// MODULE: quiz-engine.js (fixed and extended)
 // ========================================================
 
 import * as allData from '../data/index.js';
@@ -21,20 +21,23 @@ export function renderQuizzes() {
     // Infinite memes
     renderInfiniteQuiz('quiz-container-3', allData.memeData, 'normal', true);
 
-    // If you want to enable additional categories later, call renderInfiniteQuiz(...)
+    // Additional infinite categories (if data present)
+    try { renderInfiniteQuiz('quiz-container-6', allData.ancientModernData, 'normal'); } catch(e) { console.warn('quiz 6 not available', e); }
+    try { renderInfiniteQuiz('quiz-container-16', allData.themeData, 'suggested'); } catch(e) { console.warn('quiz 16 not available', e); }
+    try { renderInfiniteQuiz('quiz-container-17', allData.materialData, 'suggested'); } catch(e) { console.warn('quiz 17 not available', e); }
+    try { renderInfiniteQuiz('quiz-container-18', allData.logicData, 'suggested'); } catch(e) { console.warn('quiz 18 not available', e); }
 }
 
 function escapeForTemplate(str = "") {
-    // Simple escaping so backticks in explanations don't break template strings
     return String(str).replace(/`/g, '\\`').replace(/\$/g, '\\$');
 }
 
 function buildOptionsHtml(q, type, isInfinite) {
-    if (!Array.isArray(q.options)) return '';
+    if (!q || !Array.isArray(q.options)) return '';
+    const expl = escapeForTemplate(q.explanation || '');
+    const questionText = escapeForTemplate(q.question || q.ancient || '');
     return q.options.map((opt, i) => {
-        const expl = escapeForTemplate(q.explanation || '');
-        // note: question text also passed for context if needed
-        return `<button class="btn-option" onclick="window.checkStaticAnswer(this, ${i}, ${q.correctIndex}, \`${expl}\`, '${type}', ${isInfinite ? 'true' : 'false'}, \`${escapeForTemplate(q.question)}\`)">${opt}</button>`;
+        return `<button class="btn-option" onclick="window.checkStaticAnswer(this, ${i}, ${q.correctIndex}, `+"`"+`${expl}`+"`"+`, '${type}', ${isInfinite ? 'true' : 'false'}, `+"`"+`${questionText}`+"`"+`)">${opt}</button>`;
     }).join('');
 }
 
@@ -48,7 +51,7 @@ function renderDailyQuiz(containerId, dataArray, type = 'normal', isMeme = false
     const q = dataArray[dayIndex % dataArray.length];
     const memeHtml = isMeme && q.emoji ? `<div style="font-size: 4rem; text-align: center; margin-bottom: 10px;">${q.emoji}</div>` : '';
     const optionsHtml = buildOptionsHtml(q, type, false);
-    container.innerHTML = `<div class="card" style="margin-bottom: 20px;">${memeHtml}<p class="question"><strong>📅 今日挑戰：</strong>${q.question}</p><div class="options">${optionsHtml}</div><div class="feedback hidden"></div></div>`;
+    container.innerHTML = `<div class="card" style="margin-bottom: 20px;">${memeHtml}<p class="question"><strong>📅 今日挑戰：</strong>${q.question || q.ancient}</p><div class="options">${optionsHtml}</div><div class="feedback hidden"></div></div>`;
 }
 
 function renderInfiniteQuiz(containerId, dataArray, type = 'normal', isMeme = false) {
@@ -61,7 +64,7 @@ function renderInfiniteQuiz(containerId, dataArray, type = 'normal', isMeme = fa
     const q = dataArray[qIndex];
     const memeHtml = isMeme && q.emoji ? `<div style="font-size: 4rem; text-align: center; margin-bottom: 10px;">${q.emoji}</div>` : '';
     const optionsHtml = buildOptionsHtml(q, type, true);
-    container.innerHTML = `<div class="card" style="margin-bottom: 20px;">${memeHtml}<p class="question">${q.question}</p><div class="options">${optionsHtml}</div><div class="feedback hidden"></div></div>`;
+    container.innerHTML = `<div class="card" style="margin-bottom: 20px;">${memeHtml}<p class="question">${q.question || q.ancient}</p><div class="options">${optionsHtml}</div><div class="feedback hidden"></div></div>`;
 }
 
 window.checkStaticAnswer = function(btn, clickedIndex, correctIndex, explanation = "", type = 'normal', isInfinite = false, questionText = "") {
@@ -73,14 +76,14 @@ window.checkStaticAnswer = function(btn, clickedIndex, correctIndex, explanation
     if (feedback) feedback.classList.remove('hidden');
 
     const labelText = type === 'suggested' ? '💡 建議答案' : '✅ 正確答案';
-    const nextBtnHtml = isInfinite ? `<br><br><button class="btn-primary" onclick="window.renderQuizzes()">做下一題 ➔</button>` : `<br><br><div style="padding:15px; background:#e3f2fd; color:#0d47a1; border-radius:8px;">回到題目列表後再嘗試更多題目。</div>`;
+    const nextBtnHtml = isInfinite ? `<br><br><button class="btn-primary" onclick="window.renderQuizzes()">做下一題 ➔</button>` : `<br><br><div style="padding:15px; background:#e3f2fd; color:#1976d2; border-radius:8px;">回到題庫後可重看解析</div>`;
 
     if (clickedIndex === correctIndex) {
         btn.style.backgroundColor = '#d4edda';
         btn.style.borderColor = '#28a745';
         if (feedback) {
             feedback.className = 'feedback success';
-            feedback.innerHTML = `🎉 選擇極佳！<br><br>💡 解析：${escapeForTemplate(explanation)}<br><br>🌟 獲得 20 積分/金幣！${nextBtnHtml}`;
+            feedback.innerHTML = `🎉 選擇極佳��<br><br>💡 解析：${escapeForTemplate(explanation)}<br><br>🌟 獲得 20 積分/金幣！${nextBtnHtml}`;
         }
         if (window.addPoints) window.addPoints(20);
     } else {
