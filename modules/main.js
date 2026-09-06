@@ -3,7 +3,7 @@
 // ========================================================
 import './firebase.js';
 import './profile.js';      // <-- Turn on the profile system
-import './quiz-engine.js';   // <-- Turn on the quiz system
+import { renderQuizzes as renderQuizzesFromModule } from './quiz-engine.js';   // <-- Turn on the quiz system
 import './ui.js';
 import './reading.js';      // <-- Reading module (renders passages)
 import './auth.js';          // <-- Auth is last, as it depends on the others
@@ -15,7 +15,6 @@ import './auth.js';          // <-- Auth is last, as it depends on the others
 // behavior and memo-saving in case timing issues occur.
 function loadLegacyScript() {
   try {
-    // script.js is located at the repository root when served on GitHub Pages
     const s = document.createElement('script');
     s.src = './script.js';
     s.defer = false; // load and execute immediately
@@ -31,6 +30,15 @@ function loadLegacyScript() {
       } catch (e) {
         console.warn('[main] Failed to inject script-patch.js', e);
       }
+      // after legacy script finished, attempt to call module renderQuizzes
+      try {
+        if (typeof renderQuizzesFromModule === 'function') {
+          // call the module's render function to populate containers
+          setTimeout(() => {
+            try { renderQuizzesFromModule(); window.renderQuizzes = renderQuizzesFromModule; } catch(e){ console.warn('[main] renderQuizzesFromModule failed', e); }
+          }, 50);
+        }
+      } catch(e) { console.warn('[main] post-legacy render attempt failed', e); }
     };
     s.onerror = (e) => { console.warn('[main] Failed to load legacy script.js from', s.src, e); };
     document.head.appendChild(s);
@@ -42,8 +50,15 @@ function loadLegacyScript() {
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadLegacyScript);
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        // also call the module render in case legacy script is unavailable
+        if (typeof renderQuizzesFromModule === 'function') { renderQuizzesFromModule(); window.renderQuizzes = renderQuizzesFromModule; }
+      } catch(e){ console.warn('DOMContentLoaded module render failed', e); }
+    });
   } else {
     loadLegacyScript();
+    try { if (typeof renderQuizzesFromModule === 'function') { renderQuizzesFromModule(); window.renderQuizzes = renderQuizzesFromModule; } } catch(e){ console.warn('Immediate module render failed', e); }
   }
 }
 
