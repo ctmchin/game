@@ -8,13 +8,28 @@ import './ui.js';
 import './reading.js';      // <-- Reading module (renders passages)
 import './auth.js';          // <-- Auth is last, as it depends on the others
 
-// Some legacy code (script.js) defines many global functions and variables
-// used by inline onclick handlers and the old UI. Inject it as a plain
-// script tag so those globals are available. After it loads, also load
-// a small runtime patch (script-patch.js) that hardens selection/highlight
-// behavior and memo-saving in case timing issues occur.
+// Load legacy script only if it is not already present. Some deployments
+// include a direct <script src="script.js"></script> in index.html; in
+// that case do not inject again or you will get duplicate-declaration
+// SyntaxErrors (e.g., 'Identifier "currentUser" has already been declared').
 function loadLegacyScript() {
   try {
+    // Check for an existing script tag that already loads script.js
+    const existing = Array.from(document.getElementsByTagName('script')).find(s => {
+      try { return s.getAttribute && (s.getAttribute('src') === './script.js' || s.getAttribute('src') === 'script.js'); } catch(e){return false;}
+    });
+    if (existing) {
+      console.log('[main] legacy script.js already present in document; skipping injection');
+      // still attempt to load patch if not present
+      const patchExists = Array.from(document.getElementsByTagName('script')).some(s => { try { return s.getAttribute && (s.getAttribute('src') === './script-patch.js' || s.getAttribute('src') === 'script-patch.js'); } catch(e){return false;} });
+      if (!patchExists) {
+        const p = document.createElement('script'); p.src = './script-patch.js'; document.head.appendChild(p);
+      }
+      // if module render available, call it (guarded)
+      try { if (typeof renderQuizzesFromModule === 'function') { setTimeout(()=>{ try{ renderQuizzesFromModule(); window.renderQuizzes = renderQuizzesFromModule; }catch(e){console.warn('[main] renderQuizzesFromModule after existing script failed', e);} }, 50); } } catch(e){console.warn('[main] after-existing render attempt failed', e);}
+      return;
+    }
+
     const s = document.createElement('script');
     s.src = './script.js';
     s.defer = false; // load and execute immediately
