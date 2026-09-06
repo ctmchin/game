@@ -3553,7 +3553,6 @@ export const theme_part1 = [
         correctIndex: 1, 
         explanation: "✅ 正確答案是 B。A 是市政管理的批評；C 屬於普通的友情懷舊；D 是盲目迎合科技進步的現實主義。B 將信箱的荒廢視為「現代效率對慢速深情的淘汰」，並賦予其孤傲堅守浪漫的人格，批判深刻且極具文學美感。" 
     },
-const themeDataPart15Extended = [
     { 
         question: "在寫作《一扇未關緊的門》時，以下哪一個結尾昇華最能展現深刻的存在主義反思，避免日常瑣碎的說教？", 
         options: [
