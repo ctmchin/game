@@ -3,7 +3,7 @@
 // ========================================================
 let currentUser = null; let memos = []; let userScore = 0; let userCoins = 0; let weeklyScore = 0; let db = null;
 let userEmojis = []; let equippedEmoji = ""; let userItems = []; let userBags = []; 
-let engineStarted = false; let engine, render, runner, world;
+let engineStarted = false; let engine, render, runner, world
 
 
 
@@ -89,7 +89,6 @@ const materialData = [{ question: "《重遊舊地》想表達「物是人非」
 const logicData = [{ question: "論點：「逆境激發潛能」。論據：「司馬遷」。", options: ["A. 他是偉大的歷史學家，我們應該學習他在逆境中讀歷史。", "B. 如果他沒有受刑，就不會寫史記。每個人都要經歷殘酷才能成功。", "C. 遭遇極大挫折，但他將悲憤化為寫作動力，證明逆境能激發潛能。", "D. 雖然遭遇不幸，但依然熱愛生活，告訴我們逆境也要保持愉快。"], correctIndex: 2, explanation: "C 完美解釋了『逆境』如何轉化為『潛能』。" }];
 
 const matchPairs = [
-  // === 【第 1 批：原本的 100 題】 ===
   { ancient: "走", modern: "跑" }, // 1
   { ancient: "妻子", modern: "妻子與兒女" }, // 2
   { ancient: "去", modern: "離開" }, // 3
@@ -190,8 +189,6 @@ const matchPairs = [
   { ancient: "白丁", modern: "沒有學問的人" }, // 98
   { ancient: "絲竹", modern: "音樂" }, // 99
   { ancient: "案牘", modern: "公文" }, // 100
-
-  // === 【第 2 批：先前追加的 100 題】 ===
   { ancient: "智力", modern: "智謀與力量" }, // 101
   { ancient: "物理", modern: "事物的道理" }, // 102
   { ancient: "自由", modern: "自作主張" }, // 103
