@@ -51,14 +51,13 @@ function updateScoreUI() {
 }
 
 // 螢光筆
-let pendingSelectedText = ""; const mobileBar = document.getElementById('mobile-highlight-bar');
-document.addEventListener('selectionchange', function() { const selection = window.getSelection(); const selectedStr = selection.toString().trim(); if (selectedStr.length > 0 && document.getElementById('article-content').contains(selection.getRangeAt(0).commonAncestorContainer.nodeType===3?selection.getRangeAt(0).commonAncestorContainer.parentNode:selection.getRangeAt(0).commonAncestorContainer)) { pendingSelectedText = selectedStr; document.getElementById('highlight-text-preview').innerText = selectedStr.length > 15 ? selectedStr.substring(0, 8) + " ... " + selectedStr.substring(selectedStr.length - 4) : selectedStr; mobileBar.classList.remove('hidden'); } else { mobileBar.classList.add('hidden'); } });
-function confirmSaveHighlight() { if (pendingSelectedText.length > 0) { memos.unshift({ content: pendingSelectedText, time: new Date().toLocaleString() }); updateMemoUI(); localStorage.setItem(`memos_${currentUser.uid}`, JSON.stringify(memos)); alert("🖍️ 重點已收藏！"); window.getSelection().removeAllRanges(); mobileBar.classList.add('hidden'); } }
-function closeHighlightBar() { mobileBar.classList.add('hidden'); pendingSelectedText = ""; }
-function addManualMemo() { const input = document.getElementById('manual-memo-input'); const text = input.value.trim(); if(text !== "") { memos.unshift({ content: text, time: new Date().toLocaleString() }); updateMemoUI(); localStorage.setItem(`memos_${currentUser.uid}`, JSON.stringify(memos)); input.value = ""; alert("儲存成功！"); } }
-function updateMemoUI() { const list = document.getElementById('memo-list'); if (memos.length === 0) { list.innerHTML = '<p style="color: #888; text-align: center;">暫無筆記</p>'; return; } list.innerHTML = memos.map(m => `<div class="memo-item"><p>${m.content}</p><div class="memo-time">${m.time}</div></div>`).join(''); }
-function loadMemos(uid) { const saved = localStorage.getItem(`memos_${uid}`); memos = saved ? JSON.parse(saved) : []; updateMemoUI(); }
+// --- highlight / memo guard (replace old fragile block) --- let pendingSelectedText = "";
 
+document.addEventListener('selectionchange', function() { try { const selection = window.getSelection(); const selectedStr = selection ? selection.toString().trim() : ''; const mobileBarEl = document.getElementById('mobile-highlight-bar'); const previewEl = document.getElementById('highlight-text-preview'); if (selectedStr.length > 0 && mobileBarEl && previewEl) { previewEl.innerText = selectedStr.slice(0, 200); mobileBarEl.classList.remove('hidden'); pendingSelectedText = selectedStr; } else if (mobileBarEl) { mobileBarEl.classList.add('hidden'); pendingSelectedText = ''; } } catch (e) { console.warn('selectionchange handler error', e); } });
+
+function confirmSaveHighlight() { if (pendingSelectedText.length > 0) { memos = memos || []; memos.unshift({ content: pendingSelectedText, time: new Date().toLocaleString() }); updateMemoUI && updateMemoUI(); if (currentUser && currentUser.uid) localStorage.setItem(memos_${currentUser.uid}, JSON.stringify(memos)); else localStorage.setItem('memos_guest', JSON.stringify(memos)); pendingSelectedText = ""; const mobileBarEl = document.getElementById('mobile-highlight-bar'); if (mobileBarEl) mobileBarEl.classList.add('hidden'); alert('已儲存至專屬備忘錄！'); } }
+
+function closeHighlightBar() { const mobileBarEl = document.getElementById('mobile-highlight-bar'); if (mobileBarEl) mobileBarEl.classList.add('hidden'); pendingSelectedText = ""; } // --- end guard ---
 
 
 
