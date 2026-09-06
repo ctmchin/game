@@ -55,7 +55,28 @@ function updateScoreUI() {
 
 document.addEventListener('selectionchange', function() { try { const selection = window.getSelection(); const selectedStr = selection ? selection.toString().trim() : ''; const mobileBarEl = document.getElementById('mobile-highlight-bar'); const previewEl = document.getElementById('highlight-text-preview'); if (selectedStr.length > 0 && mobileBarEl && previewEl) { previewEl.innerText = selectedStr.slice(0, 200); mobileBarEl.classList.remove('hidden'); pendingSelectedText = selectedStr; } else if (mobileBarEl) { mobileBarEl.classList.add('hidden'); pendingSelectedText = ''; } } catch (e) { console.warn('selectionchange handler error', e); } });
 
-function confirmSaveHighlight() { if (pendingSelectedText.length > 0) { memos = memos || []; memos.unshift({ content: pendingSelectedText, time: new Date().toLocaleString() }); updateMemoUI && updateMemoUI(); if (currentUser && currentUser.uid) localStorage.setItem(memos_${currentUser.uid}, JSON.stringify(memos)); else localStorage.setItem('memos_guest', JSON.stringify(memos)); pendingSelectedText = ""; const mobileBarEl = document.getElementById('mobile-highlight-bar'); if (mobileBarEl) mobileBarEl.classList.add('hidden'); alert('已儲存至專屬備忘錄！'); } }
+function confirmSaveHighlight() { 
+  if (pendingSelectedText.length > 0) { 
+    memos = memos || []; 
+    memos.unshift({ 
+      content: pendingSelectedText, 
+      time: new Date().toLocaleString() 
+    }); 
+    updateMemoUI && updateMemoUI(); 
+    
+    // Fixed line: Added backticks around the template literal key
+    if (currentUser && currentUser.uid) {
+      localStorage.setItem(`memos_${currentUser.uid}`, JSON.stringify(memos)); 
+    } else {
+      localStorage.setItem('memos_guest', JSON.stringify(memos)); 
+    }
+    
+    pendingSelectedText = ""; 
+    const mobileBarEl = document.getElementById('mobile-highlight-bar'); 
+    if (mobileBarEl) mobileBarEl.classList.add('hidden'); 
+    alert('已儲存至專屬備忘錄！'); 
+  } 
+}
 
 function closeHighlightBar() { const mobileBarEl = document.getElementById('mobile-highlight-bar'); if (mobileBarEl) mobileBarEl.classList.add('hidden'); pendingSelectedText = ""; } // --- end guard ---
 
