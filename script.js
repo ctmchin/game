@@ -272,8 +272,6 @@ const matchPairs = [
   { ancient: "褐", modern: "粗布衣" }, // 198
   { ancient: "裘", modern: "皮衣" }, // 199
   { ancient: "履", modern: "鞋子或踩踏" }, // 200
-
-  // === 【第 3 批：全新追加 101~200，總計第 201~300 題】 ===
   { ancient: "冠", modern: "帽子或成年" }, // 201
   { ancient: "舍", modern: "客舍或捨棄" }, // 202
   { ancient: "次", modern: "臨時駐紮" }, // 203
@@ -374,8 +372,6 @@ const matchPairs = [
   { ancient: "僕", modern: "奴僕或我的謙稱" }, // 298
   { ancient: "妾", modern: "女奴或女子的謙稱" }, // 299
   { ancient: "臣", modern: "臣子或臣的謙稱" }, // 300
-
-  // === 【第 4 批：全新追加 201~300，總計第 301~400 題】 ===
   { ancient: "愚", modern: "愚笨或我的謙稱" }, // 301
   { ancient: "不才", modern: "沒有才能或我的謙稱" }, // 302
   { ancient: "寡人", modern: "寡德之人或君主謙稱" }, // 303
