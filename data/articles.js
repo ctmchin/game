@@ -14,7 +14,7 @@ let readingTimer = null;
 let secondsRead = 0;
 
 function renderCurrentArticle() {
-  const a = articles[currentArticleIndex];
+  const a = articlesData[currentArticleIndex];
   if (!a) return;
   const titleEl = document.getElementById('reading-title');
   const textEl = document.getElementById('reading-text');
@@ -31,7 +31,7 @@ function renderCurrentArticle() {
 }
 
 function nextArticle() {
-  currentArticleIndex = (currentArticleIndex + 1) % articles.length;
+  currentArticleIndex = (currentArticleIndex + 1) % articlesData.length;
   renderCurrentArticle();
 }
 
