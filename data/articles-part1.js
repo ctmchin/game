@@ -1,9 +1,5 @@
-// ========================================================
-// MODULE: reading.js
-// Simple reading module that provides articles and a 30s claim flow.
-// ========================================================
-
-const articles = [
+// data/material-part1.js
+export const articles = [
     { 
         title: "《生命的化妝》 (林清玄)", 
         text: "我認識一位化妝師。她是真正懂得化妝，而又以化妝聞名的。<br><br>對於這生活在與我完全不同領域的人，我增添了幾分好奇，因為在我的印象裡，化妝再有學問，也只是在皮相上用功，實在不是有智慧的人所應追求的。<br><br>因此，我忍不住問她：「妳研究化妝這麼多年，到底什麼樣的人才算會化妝？化妝的最高境界到底是什麼？」<br><br>對於這樣的問題，這位年華已逐漸老去的化妝師露出一個深深的微笑。她說：「化妝的最高境界可以用兩個字形容，就是『無妝』。是自然，是一流的化妝師能指出別人的優點，加以凸顯，掩蓋缺點，讓人發現那是自然的美，而不是化妝的美。」<br><br>我靜靜聽她說著，不禁受了極大的震撼。<br><br>她接著說：「這不就像你們寫文章一樣？拙劣的文章常常是詞句的堆砌，扭曲了作者的個性。好一點的文章是光芒四射，吸引了人的視線，但別人知道你是在寫文章。最好的文章，是作家自然的流露，他不堆砌，讀的時候不覺得是在讀文章，而是在讀一個生命。」<br><br>多麼有智慧的人呀！我心裡忍不住讚嘆。<br><br>她繼續說：「其實，化妝只是最末的一個枝節，它能改變的事實很少。深一層的化妝是改變體質，讓一個個人改變生活方式、睡眠充足、注意運動與營養，這樣她的皮膚改善、精神充足、比化妝有效得多。再深一層的化妝是改變氣質，多讀書、多欣賞藝術、多思考、對生活樂觀、對生命有信心、心地善良、關懷別人、自愛而有尊嚴，這樣的人就是不化妝也醜不到哪裡去，臉上的化妝只是化妝最後的一件小事。」<br><br>我忍不住嘆息說：「這個化妝的觀點實在是太精闢了！」<br><br>她說：「三流的化妝是臉上的化妝；二流的化妝是精神的化妝；一流的化妝是生命的化妝。」<br><br>我聽了這番話，陷入了深深的沉思。我們在人生的道路上，不也常常像那些只懂得在臉上塗抹的人一樣，追求著表面的浮華與虛榮，卻忽略了內在生命的修練？我們花費大量的金錢與時間去購買名牌服飾、昂貴保養品，試圖掩蓋歲月的痕跡與內心的空虛，但那些乾燥枯萎的靈魂，是任何高級化妝品都無法滋潤的。<br><br>化妝師看著我，彷彿看穿了我的心思，她輕輕地說：「記住，世界上最美麗的化妝，是發自內心的微笑與對生命的熱愛。當你的生命充滿了光彩，你的容貌自然也會煥發出無與倫比的美麗。」<br><br>那天深夜，我走在回家的路上，晚風吹拂著我的臉頰，我感到前所未有的清醒。我明白了一流的化妝不是技巧，而是生命的展現。<br><br><hr><br><strong>【賞析與學習重點】</strong><br>💡 <strong>主旨立意：</strong>真正的美不在於外表的塗抹，而在於內在氣質與生命態度的涵養。<br>✍️ <strong>寫作技巧：</strong>運用「層層遞進」的說理方式（三流：臉龐；二流：精神；一流：生命），並使用「類比法」將化妝與寫文章結合。<br>🤔 <strong>思考引導：</strong>試著分析自己目前的日常生活，你花在「臉上化妝」與「生命化妝」的時間比例是多少？" 
@@ -498,70 +494,3 @@ const articles = [
     }  
 ];
 
-let currentArticleIndex = 0;
-let readingTimer = null;
-let secondsRead = 0;
-
-function renderCurrentArticle() {
-  const a = articles[currentArticleIndex];
-  if (!a) return;
-  const titleEl = document.getElementById('reading-title');
-  const textEl = document.getElementById('reading-text');
-  if (titleEl) titleEl.innerText = a.title;
-  if (textEl) textEl.innerHTML = a.text;
-  const btn = document.getElementById('btn-claim-reading');
-  if (btn) {
-    btn.disabled = true;
-    btn.style.background = '#ccc';
-    btn.style.cursor = 'not-allowed';
-    btn.innerText = '⏳ 閱讀 30 秒後領取';
-  }
-  stopReadingTimer();
-}
-
-function nextArticle() {
-  currentArticleIndex = (currentArticleIndex + 1) % articles.length;
-  renderCurrentArticle();
-}
-
-function stopReadingTimer() {
-  if (readingTimer) { clearInterval(readingTimer); readingTimer = null; }
-  secondsRead = 0;
-}
-
-function startReadingTimer() {
-  stopReadingTimer();
-  secondsRead = 0;
-  const btn = document.getElementById('btn-claim-reading');
-  if (!btn) return;
-  btn.disabled = true; btn.style.background = '#ccc'; btn.style.cursor = 'not-allowed'; btn.innerText = '⏳ 閱讀 30 秒後領取';
-
-  readingTimer = setInterval(() => {
-    secondsRead++;
-    if (secondsRead >= 30) {
-      clearInterval(readingTimer); readingTimer = null;
-      btn.disabled = false; btn.style.background = '#4caf50'; btn.style.cursor = 'pointer'; btn.innerText = '💰 領取 10 積分/金幣';
-    } else {
-      btn.innerText = `⏳ 閱讀中... (${30 - secondsRead}s)`;
-    }
-  }, 1000);
-}
-
-function claimReadingPoints() {
-  // Do not add points to admin/test infinite accounts
-  if (window.addPoints) window.addPoints(10);
-  const btn = document.getElementById('btn-claim-reading');
-  if (btn) { btn.disabled = true; btn.style.background = '#ccc'; btn.style.cursor = 'not-allowed'; btn.innerText = '✅ 已領取！請換下一篇'; }
-}
-
-// Expose to global for HTML buttons
-window.nextArticle = nextArticle;
-window.startReadingTimer = startReadingTimer;
-window.claimReadingPoints = claimReadingPoints;
-
-// Initial render when module loads
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(renderCurrentArticle, 50);
-  });
-}
