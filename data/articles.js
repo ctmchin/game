@@ -14,10 +14,24 @@ let readingTimer = null;
 let secondsRead = 0;
 
 function renderCurrentArticle() {
+  console.log("當前 articlesData 內容:", articlesData);
+  console.log("當前文章索引:", currentArticleIndex);
+  
   const a = articlesData[currentArticleIndex];
-  if (!a) return;
+
+   if (!a) {
+    console.warn("⚠️ 警告：找不到當前索引的文章！渲染中斷。");
+    return;
+  }
+
+  console.log("準備渲染的文章:", a.title);
+
   const titleEl = document.getElementById('reading-title');
   const textEl = document.getElementById('reading-text');
+  
+  if (!titleEl) console.error("❌ 錯誤：HTML 中找不到 id 為 'reading-title' 的元素！");
+  if (!textEl) console.error("❌ 錯誤：HTML 中找不到 id 為 'reading-text' 的元素！");
+
   if (titleEl) titleEl.innerText = a.title;
   if (textEl) textEl.innerHTML = a.text;
   const btn = document.getElementById('btn-claim-reading');
