@@ -142,7 +142,31 @@
                     <div id="wall-11" style="display:flex; flex-wrap:wrap; gap:15px; justify-content:center;"></div>
                 </div>
             </section>
-            
+            <section id="feature-reading" class="module">
+                <h2>📖 經典散文閱讀</h2>
+                <div class="card" style="position: relative;">
+        
+                    <!-- 1. The Article Title Container -->
+                    <h2 id="reading-title" style="color: #1976d2; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                        正在載入文章標題...
+                    </h2>
+        
+                    <!-- 2. The Article Text Container -->
+                    <div id="reading-text" style="font-size: 1.15rem; line-height: 1.8; color: #333; margin-bottom: 30px; letter-spacing: 0.5px;">
+                        正在載入文章內容...
+                    </div>
+
+                    <!-- 3. The Buttons Container -->
+                    <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                        <button id="btn-claim-reading" class="btn-primary" style="flex: 1; padding: 12px; font-weight: bold; background-color: #ccc; cursor: not-allowed;" disabled onclick="claimReadingPoints()">
+                            ⏳ 閱讀 30 秒後領取
+                        </button>
+                        <button class="btn-secondary" style="padding: 12px 25px;" onclick="nextArticle()">
+                            下一篇 ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
             <section id="feature-12" class="module">
                 <h2>🐉 靈獸進化圖鑑 (100 級系統)</h2>
                 <div class="card" style="text-align:center;">
