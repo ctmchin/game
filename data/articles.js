@@ -72,7 +72,12 @@ window.claimReadingPoints = claimReadingPoints;
 
 // Initial render when module loads
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(renderCurrentArticle, 50);
+    });
+  } else {
+    // 如果 DOM 早就準備好了（module 腳本常見情況），直接渲染！
     setTimeout(renderCurrentArticle, 50);
-  });
+  }
 }
