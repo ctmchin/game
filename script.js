@@ -720,7 +720,7 @@ function drawGacha() {
             userBags.push(bagData); if(db && currentUser.role !== 'teacher') db.collection('users').doc(currentUser.uid).update({ bags: userBags });
         } else { 
             isItem = false;
-            const emojis = ["😎", "👻", "🔥", "✨", "👑", "👽", "💩", "🦄", "🐼", "🚀", "🌟"];
+            const emojis = "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "🥺", "😩", "😫", "😖", "😣", "☹️", "🙁", "😕", "😟", "😔", "🙂‍↔️", "😞", "😒", "😏", "🙂‍↕", "🥳", "🤩","😎", "🤓", "🧐", "🤨", "🤪", "😜", "😝", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😶‍🌫️", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🤭", "🤫", "🤥", "🥴", "🤐", "😵‍💫", "😵", "😮‍💨", "😪", "🤤", "😴", "🥱", "😲", "😮", "😧", "😦", "😯", "🙄", "😬", "😑", "😐", "😶", "🤧", "😷", "🤒", "🤕", "🤠", "🤡", "👻", "🔥", "✨", "👑","👽", "💩", "🦄", "🐼", "🚀", "🌟"];
             const gotEmoji = emojis[Math.floor(Math.random() * emojis.length)];
             card = `【B 級】專屬稱號 Emoji：${gotEmoji}`; color = "#757575";
             if(!userEmojis.includes(gotEmoji)) { userEmojis.push(gotEmoji); if(db && currentUser.role !== 'teacher') db.collection('users').doc(currentUser.uid).update({ emojis: userEmojis }); }
