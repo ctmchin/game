@@ -1,10 +1,9 @@
 // ========================================================
-// MODULE: auth.js (Final, Correct Version)
-// This handles BOTH manual and Google login.
+// MODULE: auth.js
+// Handles manual + Google login and persistent user data
 // ========================================================
 
-// Import the auth service from our firebase module
-import { auth } from './firebase.js';
+import { auth, db } from './firebase.js';
 
 const secureAccounts = {
     "admin_ctm": { pwd: "K7m@P9q#", role: "teacher", name: "CTM 老師" },
@@ -15,75 +14,310 @@ const secureAccounts = {
     "stu09": { pwd: "q9M^b4C", role: "student", name: "學生 09" }, "stu10": { pwd: "q9M^b4C", role: "student", name: "學生 10" }
 };
 
-// This function is called after any successful login
-function handleLoginSuccess(user) {
-    console.log("Login success! User:", user.displayName);
-    window.currentUser = user;
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
+const adminAccounts = new Set([
+    "admin_ctm",
+    "ctmlwsss@gmail.com",
+    "jimchanchin@gmail.com"
+]);
 
-    // --- THE FIX: Call the functions to display user info and quizzes ---
-    if (window.updateScoreUI) {
+function normalizeUserInput(input) {
+    const rawUid = (input && (input.uid || input.id || input.email || "")) || "";
+    const uid = rawUid.toString();
+    const email = ((input && input.email) || "").toString().toLowerCase();
+    const displayName = (input && (input.displayName || input.name)) || (email ? email.split('@')[0] : "學生");
+    const role = (input && input.role) || (
+        adminAccounts.has(uid) || adminAccounts.has(email) ? "teacher" : "student"
+    );
+
+    return {
+        uid,
+        email,
+        displayName,
+        role
+    };
+}
+
+function applyProfileToGame(profile) {
+    if (!profile || !profile.uid) return;
+
+    window.currentUser = {
+        ...(window.currentUser || {}),
+        ...profile,
+        uid: profile.uid,
+        displayName: profile.displayName || '學生',
+        email: profile.email || '',
+        role: profile.role || 'student'
+    };
+
+    if (typeof currentUser !== 'undefined') {
+        currentUser = window.currentUser;
+    }
+
+    if (typeof window.userScore !== 'undefined') {
+        window.userScore = Number(profile.score || 0);
+    }
+    if (typeof userScore !== 'undefined') {
+        userScore = Number(profile.score || 0);
+    }
+
+    if (typeof window.userCoins !== 'undefined') {
+        window.userCoins = Number(profile.coins || 0);
+    }
+    if (typeof userCoins !== 'undefined') {
+        userCoins = Number(profile.coins || 0);
+    }
+
+    if (typeof window.weeklyScore !== 'undefined') {
+        window.weeklyScore = Number(profile.weeklyScore || 0);
+    }
+    if (typeof weeklyScore !== 'undefined') {
+        weeklyScore = Number(profile.weeklyScore || 0);
+    }
+
+    if (typeof window.equippedEmoji !== 'undefined') {
+        window.equippedEmoji = profile.equippedEmoji || '';
+    }
+    if (typeof equippedEmoji !== 'undefined') {
+        equippedEmoji = profile.equippedEmoji || '';
+    }
+
+    if (typeof window.userItems !== 'undefined') {
+        window.userItems = Array.isArray(profile.items) ? profile.items : [];
+    }
+    if (typeof userItems !== 'undefined') {
+        userItems = Array.isArray(profile.items) ? profile.items : [];
+    }
+
+    if (typeof window.userEmojis !== 'undefined') {
+        window.userEmojis = Array.isArray(profile.emojis) ? profile.emojis : [];
+    }
+    if (typeof userEmojis !== 'undefined') {
+        userEmojis = Array.isArray(profile.emojis) ? profile.emojis : [];
+    }
+
+    if (typeof window.userBags !== 'undefined') {
+        window.userBags = Array.isArray(profile.bags) ? profile.bags : [];
+    }
+    if (typeof userBags !== 'undefined') {
+        userBags = Array.isArray(profile.bags) ? profile.bags : [];
+    }
+
+    if (typeof window.memos !== 'undefined') {
+        window.memos = Array.isArray(profile.memos) ? profile.memos : [];
+    }
+    if (typeof memos !== 'undefined') {
+        memos = Array.isArray(profile.memos) ? profile.memos : [];
+    }
+
+    if (typeof window.updateScoreUI === 'function') {
         window.updateScoreUI();
     }
-    if (window.renderQuizzes) {
-        window.renderQuizzes();
+    if (typeof window.loadMemos === 'function' && profile.uid) {
+        window.loadMemos(profile.uid);
     }
 }
 
+async function ensureUserProfile(userInput) {
+    const base = normalizeUserInput(userInput);
+    if (!db || !base.uid) {
+        return base;
+    }
 
-// This function checks for a saved manual login session
+    const userRef = db.collection('users').doc(base.uid);
+
+    try {
+        const snapshot = await userRef.get();
+        const existing = snapshot.exists ? snapshot.data() : {};
+
+        const profile = {
+            uid: base.uid,
+            email: (base.email || existing.email || '').toLowerCase(),
+            displayName: base.displayName || existing.displayName || '學生',
+            role: base.role || existing.role || 'student',
+            score: Number(existing.score ?? 0),
+            coins: Number(existing.coins ?? 0),
+            weeklyScore: Number(existing.weeklyScore ?? 0),
+            memos: Array.isArray(existing.memos) ? existing.memos : [],
+            items: Array.isArray(existing.items) ? existing.items : [],
+            emojis: Array.isArray(existing.emojis) ? existing.emojis : [],
+            equippedEmoji: existing.equippedEmoji || '',
+            bags: Array.isArray(existing.bags) ? existing.bags : [],
+            lastLogin: Date.now()
+        };
+
+        if (base.role === 'teacher') profile.role = 'teacher';
+        if (base.email && adminAccounts.has(base.email)) profile.role = 'teacher';
+
+        await userRef.set(profile, { merge: true });
+        return profile;
+    } catch (error) {
+        console.warn('ensureUserProfile failed:', error);
+        return {
+            uid: base.uid,
+            email: base.email,
+            displayName: base.displayName,
+            role: base.role || 'student',
+            score: 0,
+            coins: 0,
+            weeklyScore: 0,
+            memos: [],
+            items: [],
+            emojis: [],
+            equippedEmoji: '',
+            bags: []
+        };
+    }
+}
+
+window.saveUserProgress = async function (override = {}) {
+    const current = window.currentUser || currentUser || {};
+    if (!current.uid || !db) return;
+
+    const docRef = db.collection('users').doc(current.uid);
+    const currentProfile = {
+        uid: current.uid,
+        email: (current.email || '').toLowerCase(),
+        displayName: current.displayName || '學生',
+        role: current.role || 'student',
+        score: Number(window.userScore ?? current.score ?? 0),
+        coins: Number(window.userCoins ?? current.coins ?? 0),
+        weeklyScore: Number(window.weeklyScore ?? current.weeklyScore ?? 0),
+        memos: Array.isArray(window.memos) ? window.memos : (Array.isArray(current.memos) ? current.memos : []),
+        items: Array.isArray(window.userItems) ? window.userItems : (Array.isArray(current.items) ? current.items : []),
+        emojis: Array.isArray(window.userEmojis) ? window.userEmojis : (Array.isArray(current.emojis) ? current.emojis : []),
+        equippedEmoji: window.equippedEmoji ?? current.equippedEmoji ?? '',
+        bags: Array.isArray(window.userBags) ? window.userBags : (Array.isArray(current.bags) ? current.bags : []),
+        lastLogin: Date.now(),
+        ...(override || {})
+    };
+
+    await docRef.set(currentProfile, { merge: true });
+    window.currentUser = { ...window.currentUser, ...currentProfile };
+    if (typeof currentUser !== 'undefined') {
+        currentUser = window.currentUser;
+    }
+};
+
+window.loadUserProgress = async function (uidOverride) {
+    const targetUid = uidOverride || (window.currentUser && window.currentUser.uid) || (currentUser && currentUser.uid);
+    if (!targetUid || !db) {
+        return;
+    }
+
+    try {
+        const doc = await db.collection('users').doc(targetUid).get();
+        if (!doc.exists) {
+            return;
+        }
+
+        const profile = doc.data();
+        applyProfileToGame({
+            uid: targetUid,
+            email: profile.email || (window.currentUser && window.currentUser.email) || '',
+            displayName: profile.displayName || (window.currentUser && window.currentUser.displayName) || '學生',
+            role: profile.role || 'student',
+            score: Number(profile.score || 0),
+            coins: Number(profile.coins || 0),
+            weeklyScore: Number(profile.weeklyScore || 0),
+            memos: Array.isArray(profile.memos) ? profile.memos : [],
+            items: Array.isArray(profile.items) ? profile.items : [],
+            emojis: Array.isArray(profile.emojis) ? profile.emojis : [],
+            equippedEmoji: profile.equippedEmoji || '',
+            bags: Array.isArray(profile.bags) ? profile.bags : []
+        });
+    } catch (error) {
+        console.warn('loadUserProgress error:', error);
+    }
+};
+
+function handleLoginSuccess(user) {
+    const safeUser = normalizeUserInput(user);
+    safeUser.role = safeUser.role || 'student';
+    if (!safeUser.uid) {
+        console.warn('handleLoginSuccess called without uid');
+        return;
+    }
+
+    const loginData = {
+        ...safeUser,
+        displayName: safeUser.displayName || '學生'
+    };
+
+    ensureUserProfile(loginData).then((profile) => {
+        applyProfileToGame(profile);
+        if (window.updateScoreUI) {
+            window.updateScoreUI();
+        }
+        if (window.renderQuizzes) {
+            window.renderQuizzes();
+        }
+    });
+
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+}
+
 function checkManualLogin() {
     const saved = sessionStorage.getItem('manualUser');
     if (saved) {
-        handleLoginSuccess(JSON.parse(saved));
+        try {
+            const parsed = JSON.parse(saved);
+            handleLoginSuccess(parsed);
+        } catch (error) {
+            console.warn('manual session parse failed', error);
+        }
     }
 }
 
-// --- GOOGLE LOGIN FUNCTION ---
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.languageCode = 'zh-HK';
-    // We will handle the result with the onAuthStateChanged listener
     auth.signInWithPopup(provider).catch((error) => {
-        console.error("Google Login Error:", error);
-        alert("Google 登入失敗，請稍後再試。");
+        console.error('Google Login Error:', error);
+        alert('Google 登入失敗，請稍後再試。');
     });
 }
 
-// --- MANUAL LOGIN FUNCTION ---
 function loginManually() {
     const username = document.getElementById('username-input').value.trim();
     const password = document.getElementById('password-input').value.trim();
     if (secureAccounts[username] && secureAccounts[username].pwd === password) {
-        const userObj = { displayName: secureAccounts[username].name, email: username + "@local", uid: username, role: secureAccounts[username].role };
+        const userObj = {
+            displayName: secureAccounts[username].name,
+            email: username + '@local',
+            uid: username,
+            role: secureAccounts[username].role
+        };
         sessionStorage.setItem('manualUser', JSON.stringify(userObj));
         handleLoginSuccess(userObj);
     } else {
-        alert("❌ 帳號或密碼錯誤！");
+        alert('❌ 帳號或密碼錯誤！');
     }
 }
 
-// --- LOGOUT FUNCTION ---
 function logout() {
     auth.signOut().catch(() => {});
     sessionStorage.removeItem('manualUser');
     window.location.reload();
 }
 
-// --- MAKE FUNCTIONS PUBLIC FOR HTML BUTTONS ---
 window.loginManually = loginManually;
-window.loginWithGoogle = loginWithGoogle; // <-- This makes the Google button work
+window.loginWithGoogle = loginWithGoogle;
 window.logout = logout;
 
-// --- MASTER AUTH LISTENER ---
-// This one listener handles everything: Google login, and initial page load.
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
     if (user) {
-        // This will run after a successful Google login
-        handleLoginSuccess({ displayName: user.displayName, email: user.email, uid: user.uid, role: 'teacher' });
+        const isTeacher = adminAccounts.has((user.email || '').toLowerCase()) || adminAccounts.has(user.uid || '');
+        const loginUser = {
+            uid: user.uid,
+            email: (user.email || '').toLowerCase(),
+            displayName: user.displayName || user.email || 'Google User',
+            role: isTeacher ? 'teacher' : 'student'
+        };
+        handleLoginSuccess(loginUser);
     } else {
-        // This will run on the initial page load to check for a manual session
         checkManualLogin();
     }
 });
+
+console.log('[auth] Firebase auth initialized with persistent user storage.');
