@@ -1,6 +1,6 @@
 // ========================================================
 // MODULE: auth.js
-// Stable Google + manual login flow, restored to the last known working version.
+// Stable login flow with Google UID-based persistence.
 // ========================================================
 
 import { auth, db } from './firebase.js';
@@ -25,75 +25,146 @@ const teacherEmails = new Set([
     'admin_ctm'
 ]);
 
-function normalizeUser(user) {
-    const uid = String(user && (user.uid || user.id || user.email || '') || '').trim();
-    const email = String(user && (user.email || '') || '').trim().toLowerCase();
-    const displayName = user && (user.displayName || user.name) ? (user.displayName || user.name) : (email ? email.split('@')[0] : '學生');
-    const role = user && user.role ? user.role : (teacherEmails.has(uid) || teacherEmails.has(email) ? 'teacher' : 'student');
+function localProfileKey(uid) {
+    return `game_profile_${uid}`;
+}
+
+function normalizeUser(user = {}) {
+    const uid = String(user.uid || user.id || user.email || '').trim();
+    const email = String(user.email || '').trim().toLowerCase();
+    const displayName = user.displayName || user.name || (email ? email.split('@')[0] : '學生');
+    const role = user.role || (teacherEmails.has(uid) || teacherEmails.has(email) ? 'teacher' : 'student');
     return { uid, email, displayName, role };
 }
 
-function handleLoginSuccess(user) {
-    const safeUser = normalizeUser(user);
-    console.log('Login success! User:', safeUser.displayName);
+function getStoredProfile(uid) {
+    try {
+        if (!uid) return null;
+        const raw = localStorage.getItem(localProfileKey(uid));
+        return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+        console.warn('getStoredProfile failed', error);
+        return null;
+    }
+}
+
+function saveStoredProfile(profile) {
+    try {
+        if (!profile || !profile.uid) return;
+        localStorage.setItem(localProfileKey(profile.uid), JSON.stringify(profile));
+    } catch (error) {
+        console.warn('saveStoredProfile failed', error);
+    }
+}
+
+function hydrateProfile(profile) {
+    if (!profile || !profile.uid) return;
 
     window.currentUser = {
-        uid: safeUser.uid,
-        email: safeUser.email,
-        displayName: safeUser.displayName,
-        role: safeUser.role || 'student'
+        uid: profile.uid,
+        email: profile.email || '',
+        displayName: profile.displayName || '學生',
+        role: profile.role || 'student'
     };
 
-    if (safeUser.uid && db) {
-        const profileRef = db.collection('users').doc(safeUser.uid);
-        profileRef.get().then((doc) => {
-            const data = doc.exists ? doc.data() : {};
-            const profile = {
-                uid: safeUser.uid,
-                email: safeUser.email || (data.email || ''),
-                displayName: safeUser.displayName || (data.displayName || '學生'),
-                role: safeUser.role || data.role || 'student',
-                score: Number(data.score || 0),
-                coins: Number(data.coins || 0),
-                weeklyScore: Number(data.weeklyScore || 0),
-                memos: Array.isArray(data.memos) ? data.memos : [],
-                items: Array.isArray(data.items) ? data.items : [],
-                emojis: Array.isArray(data.emojis) ? data.emojis : [],
-                equippedEmoji: data.equippedEmoji || '',
-                bags: Array.isArray(data.bags) ? data.bags : []
-            };
+    window.userScore = Number(profile.score || 0);
+    window.userCoins = Number(profile.coins || 0);
+    window.weeklyScore = Number(profile.weeklyScore || 0);
+    window.memos = Array.isArray(profile.memos) ? profile.memos : [];
+    window.userItems = Array.isArray(profile.items) ? profile.items : [];
+    window.userEmojis = Array.isArray(profile.emojis) ? profile.emojis : [];
+    window.equippedEmoji = profile.equippedEmoji || '';
+    window.userBags = Array.isArray(profile.bags) ? profile.bags : [];
 
-            userScore = Number(profile.score || 0);
-            userCoins = Number(profile.coins || 0);
-            weeklyScore = Number(profile.weeklyScore || 0);
-            memos = profile.memos;
-            userItems = profile.items;
-            userEmojis = profile.emojis;
-            equippedEmoji = profile.equippedEmoji || '';
-            userBags = profile.bags;
-
-            return profileRef.set(profile, { merge: true });
-        }).catch((err) => {
-            console.warn('profile load failed', err);
-        });
+    if (typeof window.updateScoreUI === 'function') {
+        window.updateScoreUI();
+    }
+    if (typeof window.loadMemos === 'function') {
+        window.loadMemos(profile.uid);
+    }
+    if (typeof window.renderQuizzes === 'function') {
+        window.renderQuizzes();
     }
 
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
     if (loginScreen) loginScreen.classList.add('hidden');
     if (dashboard) dashboard.classList.remove('hidden');
+}
 
-    if (window.updateScoreUI) window.updateScoreUI();
-    if (window.renderQuizzes) window.renderQuizzes();
-    if (window.loadMemos) window.loadMemos(safeUser.uid);
+async function syncCloudProfile(profile) {
+    if (!db || !profile || !profile.uid) return profile;
+
+    const userRef = db.collection('users').doc(profile.uid);
+    try {
+        const snapshot = await userRef.get();
+        const existing = snapshot.exists ? snapshot.data() : {};
+
+        const merged = {
+            uid: profile.uid,
+            email: (profile.email || existing.email || '').toLowerCase(),
+            displayName: profile.displayName || existing.displayName || '學生',
+            role: profile.role || existing.role || 'student',
+            score: Number(existing.score || profile.score || 0),
+            coins: Number(existing.coins || profile.coins || 0),
+            weeklyScore: Number(existing.weeklyScore || profile.weeklyScore || 0),
+            memos: Array.isArray(existing.memos) && existing.memos.length ? existing.memos : (Array.isArray(profile.memos) ? profile.memos : []),
+            items: Array.isArray(existing.items) && existing.items.length ? existing.items : (Array.isArray(profile.items) ? profile.items : []),
+            emojis: Array.isArray(existing.emojis) && existing.emojis.length ? existing.emojis : (Array.isArray(profile.emojis) ? profile.emojis : []),
+            equippedEmoji: existing.equippedEmoji || profile.equippedEmoji || '',
+            bags: Array.isArray(existing.bags) && existing.bags.length ? existing.bags : (Array.isArray(profile.bags) ? profile.bags : []),
+            lastLogin: Date.now()
+        };
+
+        if (profile.email && teacherEmails.has(profile.email)) {
+            merged.role = 'teacher';
+        }
+
+        await userRef.set(merged, { merge: true });
+        return merged;
+    } catch (error) {
+        console.warn('syncCloudProfile failed', error);
+        return profile;
+    }
+}
+
+async function handleLoginSuccess(user) {
+    const safeUser = normalizeUser(user);
+    if (!safeUser.uid) {
+        console.warn('handleLoginSuccess called without uid');
+        return;
+    }
+
+    const stored = getStoredProfile(safeUser.uid) || {};
+    const baseProfile = {
+        uid: safeUser.uid,
+        email: safeUser.email || stored.email || '',
+        displayName: safeUser.displayName || stored.displayName || '學生',
+        role: safeUser.role || stored.role || 'student',
+        score: Number(stored.score || 0),
+        coins: Number(stored.coins || 0),
+        weeklyScore: Number(stored.weeklyScore || 0),
+        memos: Array.isArray(stored.memos) ? stored.memos : [],
+        items: Array.isArray(stored.items) ? stored.items : [],
+        emojis: Array.isArray(stored.emojis) ? stored.emojis : [],
+        equippedEmoji: stored.equippedEmoji || '',
+        bags: Array.isArray(stored.bags) ? stored.bags : []
+    };
+
+    let finalProfile = baseProfile;
+    if (db) {
+        finalProfile = await syncCloudProfile(baseProfile);
+    }
+
+    saveStoredProfile(finalProfile);
+    hydrateProfile(finalProfile);
 }
 
 function checkManualLogin() {
-    const saved = sessionStorage.getItem('manualUser');
-    if (!saved) return;
     try {
-        const parsed = JSON.parse(saved);
-        handleLoginSuccess(parsed);
+        const saved = sessionStorage.getItem('manualUser');
+        if (!saved) return;
+        handleLoginSuccess(JSON.parse(saved));
     } catch (error) {
         console.warn('manual session parse failed', error);
     }
@@ -158,4 +229,4 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
-console.log('[auth] Restored stable Google login flow.');
+console.log('[auth] Stable Google login with UID-based profile persistence enabled.');
