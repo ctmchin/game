@@ -8,35 +8,9 @@
 
   window.pendingSelectedText = window.pendingSelectedText || "";
 
-  function ensureMemoList() {
-    try {
-      let list = document.getElementById('memo-list');
-      if (list) return list;
-
-      const feature15 = document.getElementById('feature-15') || document.querySelector('[data-feature="feature-15"]');
-      if (!feature15) {
-        return null;
-      }
-
-      let container = feature15.querySelector('.memo-container');
-      if (!container) {
-        container = document.createElement('div');
-        container.className = 'memo-container';
-        container.id = 'memo-list';
-        feature15.appendChild(container);
-      } else {
-        container.id = 'memo-list';
-      }
-      return container;
-    } catch (e) {
-      console.warn('[script-patch] ensureMemoList failed', e);
-      return null;
-    }
-  }
-
   function updateMemoUI() {
     try {
-      const list = ensureMemoList();
+      const list = document.getElementById('memo-list');
       if (!list) return;
 
       const memos = Array.isArray(window.memos) ? window.memos : [];
@@ -58,45 +32,26 @@
 
   function persistMemoState() {
     try {
+      const memos = Array.isArray(window.memos) ? window.memos : [];
       if (window.currentUser && window.currentUser.uid) {
         const uid = window.currentUser.uid;
-        localStorage.setItem(`memos_${uid}`, JSON.stringify(window.memos || []));
-        if (window.saveUserProgress) {
-          window.saveUserProgress({ memos: window.memos || [] });
+        localStorage.setItem(`memos_${uid}`, JSON.stringify(memos));
+
+        if (firebase && firebase.firestore) {
+          const db = firebase.firestore();
+          db.collection('users').doc(uid).set({
+            memos,
+            score: Number(window.userScore || 0),
+            coins: Number(window.userCoins || 0),
+            weeklyScore: Number(window.weeklyScore || 0),
+            lastLogin: Date.now()
+          }, { merge: true });
         }
       } else {
-        localStorage.setItem('memos_guest', JSON.stringify(window.memos || []));
+        localStorage.setItem('memos_guest', JSON.stringify(memos));
       }
     } catch (e) {
       console.warn('[script-patch] persistMemoState failed', e);
-    }
-  }
-
-  function patchUserDocWrites() {
-    try {
-      if (window.__userDocWritePatched) return;
-      if (!window.firebase && !firebase) return;
-
-      const firestore = (window.firebase && window.firebase.firestore) ? window.firebase.firestore : firebase.firestore;
-      const DocRefProto = firestore && firestore.DocumentReference && firestore.DocumentReference.prototype;
-      if (!DocRefProto) return;
-
-      const originalUpdate = DocRefProto.update;
-      DocRefProto.update = function(data) {
-        try {
-          const path = this.path || this._path || (this._delegate && this._delegate.path) || '';
-          if (String(path).startsWith('users/')) {
-            return this.set(data, { merge: true });
-          }
-        } catch (e) {
-          console.warn('[script-patch] user-write patch check failed', e);
-        }
-        return originalUpdate ? originalUpdate.call(this, data) : Promise.resolve();
-      };
-
-      window.__userDocWritePatched = true;
-    } catch (e) {
-      console.warn('[script-patch] patchUserDocWrites failed', e);
     }
   }
 
@@ -150,7 +105,19 @@
   window.loadMemos = function(uid) {
     try {
       const saved = localStorage.getItem(`memos_${uid}`);
-      window.memos = saved ? JSON.parse(saved) : [];
+      if (saved) {
+        window.memos = JSON.parse(saved);
+      } else if (firebase && firebase.firestore) {
+        firebase.firestore().collection('users').doc(uid).get().then((doc) => {
+          if (doc.exists && Array.isArray(doc.data().memos)) {
+            window.memos = doc.data().memos;
+            updateMemoUI();
+          }
+        }).catch(() => {
+          window.memos = [];
+          updateMemoUI();
+        });
+      }
       updateMemoUI();
     } catch (e) {
       console.warn('loadMemos error', e);
@@ -179,6 +146,5 @@
   });
 
   window.updateMemoUI = updateMemoUI;
-  patchUserDocWrites();
   console.log('[script-patch] installed');
 })();
