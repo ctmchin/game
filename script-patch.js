@@ -33,19 +33,18 @@
   function persistMemoState() {
     try {
       const memos = Array.isArray(window.memos) ? window.memos : [];
-      if (window.currentUser && window.currentUser.uid) {
-        const uid = window.currentUser.uid;
-        localStorage.setItem(`memos_${uid}`, JSON.stringify(memos));
+      const payload = {
+        memos,
+        score: Number(window.userScore || 0),
+        coins: Number(window.userCoins || 0),
+        weeklyScore: Number(window.weeklyScore || 0),
+        lastLogin: Date.now()
+      };
 
-        if (firebase && firebase.firestore) {
-          const db = firebase.firestore();
-          db.collection('users').doc(uid).set({
-            memos,
-            score: Number(window.userScore || 0),
-            coins: Number(window.userCoins || 0),
-            weeklyScore: Number(window.weeklyScore || 0),
-            lastLogin: Date.now()
-          }, { merge: true });
+      if (window.currentUser && window.currentUser.uid) {
+        localStorage.setItem(`memos_${window.currentUser.uid}`, JSON.stringify(memos));
+        if (typeof window.saveUserProgress === 'function') {
+          window.saveUserProgress(payload);
         }
       } else {
         localStorage.setItem('memos_guest', JSON.stringify(memos));
@@ -107,16 +106,8 @@
       const saved = localStorage.getItem(`memos_${uid}`);
       if (saved) {
         window.memos = JSON.parse(saved);
-      } else if (firebase && firebase.firestore) {
-        firebase.firestore().collection('users').doc(uid).get().then((doc) => {
-          if (doc.exists && Array.isArray(doc.data().memos)) {
-            window.memos = doc.data().memos;
-            updateMemoUI();
-          }
-        }).catch(() => {
-          window.memos = [];
-          updateMemoUI();
-        });
+      } else {
+        window.memos = [];
       }
       updateMemoUI();
     } catch (e) {
@@ -146,5 +137,5 @@
   });
 
   window.updateMemoUI = updateMemoUI;
-  console.log('[script-patch] installed');
+  console.log('[script-patch] memo persistence enabled');
 })();
