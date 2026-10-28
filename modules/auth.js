@@ -14,27 +14,19 @@ const secureAccounts = {
     "stu09": { pwd: "q9M^b4C", role: "student", name: "學生 09" }, "stu10": { pwd: "q9M^b4C", role: "student", name: "學生 10" }
 };
 
-const adminAccounts = new Set([
-    "admin_ctm",
-    "ctmlwsss@gmail.com",
-    "jimchanchin@gmail.com"
+const teacherEmails = new Set([
+    'ctmlwsss@gmail.com',
+    'jimchanchin@gmail.com',
+    'admin_ctm'
 ]);
 
-function normalizeUserInput(input) {
-    const rawUid = (input && (input.uid || input.id || input.email || "")) || "";
-    const uid = rawUid.toString();
-    const email = ((input && input.email) || "").toString().toLowerCase();
-    const displayName = (input && (input.displayName || input.name)) || (email ? email.split('@')[0] : "學生");
-    const role = (input && input.role) || (
-        adminAccounts.has(uid) || adminAccounts.has(email) ? "teacher" : "student"
-    );
+function normalizeUserInput(input = {}) {
+    const uid = ((input.uid || input.id || input.email || '') + '').trim();
+    const email = ((input.email || '') + '').trim().toLowerCase();
+    const displayName = input.displayName || input.name || (email ? email.split('@')[0] : '學生');
+    const role = input.role || (teacherEmails.has(uid) || teacherEmails.has(email) ? 'teacher' : 'student');
 
-    return {
-        uid,
-        email,
-        displayName,
-        role
-    };
+    return { uid, email, displayName, role };
 }
 
 function applyProfileToGame(profile) {
@@ -42,10 +34,9 @@ function applyProfileToGame(profile) {
 
     window.currentUser = {
         ...(window.currentUser || {}),
-        ...profile,
         uid: profile.uid,
-        displayName: profile.displayName || '學生',
         email: profile.email || '',
+        displayName: profile.displayName || '學生',
         role: profile.role || 'student'
     };
 
@@ -53,75 +44,23 @@ function applyProfileToGame(profile) {
         currentUser = window.currentUser;
     }
 
-    if (typeof window.userScore !== 'undefined') {
-        window.userScore = Number(profile.score || 0);
-    }
-    if (typeof userScore !== 'undefined') {
-        userScore = Number(profile.score || 0);
-    }
+    userScore = Number(profile.score || 0);
+    userCoins = Number(profile.coins || 0);
+    weeklyScore = Number(profile.weeklyScore || 0);
+    memos = Array.isArray(profile.memos) ? profile.memos : [];
+    userItems = Array.isArray(profile.items) ? profile.items : [];
+    userEmojis = Array.isArray(profile.emojis) ? profile.emojis : [];
+    equippedEmoji = profile.equippedEmoji || '';
+    userBags = Array.isArray(profile.bags) ? profile.bags : [];
 
-    if (typeof window.userCoins !== 'undefined') {
-        window.userCoins = Number(profile.coins || 0);
-    }
-    if (typeof userCoins !== 'undefined') {
-        userCoins = Number(profile.coins || 0);
-    }
-
-    if (typeof window.weeklyScore !== 'undefined') {
-        window.weeklyScore = Number(profile.weeklyScore || 0);
-    }
-    if (typeof weeklyScore !== 'undefined') {
-        weeklyScore = Number(profile.weeklyScore || 0);
-    }
-
-    if (typeof window.equippedEmoji !== 'undefined') {
-        window.equippedEmoji = profile.equippedEmoji || '';
-    }
-    if (typeof equippedEmoji !== 'undefined') {
-        equippedEmoji = profile.equippedEmoji || '';
-    }
-
-    if (typeof window.userItems !== 'undefined') {
-        window.userItems = Array.isArray(profile.items) ? profile.items : [];
-    }
-    if (typeof userItems !== 'undefined') {
-        userItems = Array.isArray(profile.items) ? profile.items : [];
-    }
-
-    if (typeof window.userEmojis !== 'undefined') {
-        window.userEmojis = Array.isArray(profile.emojis) ? profile.emojis : [];
-    }
-    if (typeof userEmojis !== 'undefined') {
-        userEmojis = Array.isArray(profile.emojis) ? profile.emojis : [];
-    }
-
-    if (typeof window.userBags !== 'undefined') {
-        window.userBags = Array.isArray(profile.bags) ? profile.bags : [];
-    }
-    if (typeof userBags !== 'undefined') {
-        userBags = Array.isArray(profile.bags) ? profile.bags : [];
-    }
-
-    if (typeof window.memos !== 'undefined') {
-        window.memos = Array.isArray(profile.memos) ? profile.memos : [];
-    }
-    if (typeof memos !== 'undefined') {
-        memos = Array.isArray(profile.memos) ? profile.memos : [];
-    }
-
-    if (typeof window.updateScoreUI === 'function') {
-        window.updateScoreUI();
-    }
-    if (typeof window.loadMemos === 'function' && profile.uid) {
-        window.loadMemos(profile.uid);
-    }
+    if (window.updateScoreUI) window.updateScoreUI();
+    if (window.loadMemos) window.loadMemos(profile.uid);
+    if (window.renderQuizzes) window.renderQuizzes();
 }
 
 async function ensureUserProfile(userInput) {
     const base = normalizeUserInput(userInput);
-    if (!db || !base.uid) {
-        return base;
-    }
+    if (!db || !base.uid) return base;
 
     const userRef = db.collection('users').doc(base.uid);
 
@@ -134,9 +73,9 @@ async function ensureUserProfile(userInput) {
             email: (base.email || existing.email || '').toLowerCase(),
             displayName: base.displayName || existing.displayName || '學生',
             role: base.role || existing.role || 'student',
-            score: Number(existing.score ?? 0),
-            coins: Number(existing.coins ?? 0),
-            weeklyScore: Number(existing.weeklyScore ?? 0),
+            score: Number(existing.score || 0),
+            coins: Number(existing.coins || 0),
+            weeklyScore: Number(existing.weeklyScore || 0),
             memos: Array.isArray(existing.memos) ? existing.memos : [],
             items: Array.isArray(existing.items) ? existing.items : [],
             emojis: Array.isArray(existing.emojis) ? existing.emojis : [],
@@ -145,8 +84,9 @@ async function ensureUserProfile(userInput) {
             lastLogin: Date.now()
         };
 
-        if (base.role === 'teacher') profile.role = 'teacher';
-        if (base.email && adminAccounts.has(base.email)) profile.role = 'teacher';
+        if (base.email && (teacherEmails.has(base.email) || teacherEmails.has(base.uid))) {
+            profile.role = 'teacher';
+        }
 
         await userRef.set(profile, { merge: true });
         return profile;
@@ -173,8 +113,7 @@ window.saveUserProgress = async function (override = {}) {
     const current = window.currentUser || currentUser || {};
     if (!current.uid || !db) return;
 
-    const docRef = db.collection('users').doc(current.uid);
-    const currentProfile = {
+    const profile = {
         uid: current.uid,
         email: (current.email || '').toLowerCase(),
         displayName: current.displayName || '學生',
@@ -188,33 +127,27 @@ window.saveUserProgress = async function (override = {}) {
         equippedEmoji: window.equippedEmoji ?? current.equippedEmoji ?? '',
         bags: Array.isArray(window.userBags) ? window.userBags : (Array.isArray(current.bags) ? current.bags : []),
         lastLogin: Date.now(),
-        ...(override || {})
+        ...override
     };
 
-    await docRef.set(currentProfile, { merge: true });
-    window.currentUser = { ...window.currentUser, ...currentProfile };
-    if (typeof currentUser !== 'undefined') {
-        currentUser = window.currentUser;
-    }
+    await db.collection('users').doc(current.uid).set(profile, { merge: true });
+    window.currentUser = { ...window.currentUser, ...profile };
+    if (typeof currentUser !== 'undefined') currentUser = window.currentUser;
+    return profile;
 };
 
 window.loadUserProgress = async function (uidOverride) {
     const targetUid = uidOverride || (window.currentUser && window.currentUser.uid) || (currentUser && currentUser.uid);
-    if (!targetUid || !db) {
-        return;
-    }
+    if (!targetUid || !db) return;
 
     try {
         const doc = await db.collection('users').doc(targetUid).get();
-        if (!doc.exists) {
-            return;
-        }
-
+        if (!doc.exists) return;
         const profile = doc.data();
         applyProfileToGame({
             uid: targetUid,
-            email: profile.email || (window.currentUser && window.currentUser.email) || '',
-            displayName: profile.displayName || (window.currentUser && window.currentUser.displayName) || '學生',
+            email: profile.email || '',
+            displayName: profile.displayName || '學生',
             role: profile.role || 'student',
             score: Number(profile.score || 0),
             coins: Number(profile.coins || 0),
@@ -232,7 +165,6 @@ window.loadUserProgress = async function (uidOverride) {
 
 function handleLoginSuccess(user) {
     const safeUser = normalizeUserInput(user);
-    safeUser.role = safeUser.role || 'student';
     if (!safeUser.uid) {
         console.warn('handleLoginSuccess called without uid');
         return;
@@ -245,27 +177,22 @@ function handleLoginSuccess(user) {
 
     ensureUserProfile(loginData).then((profile) => {
         applyProfileToGame(profile);
-        if (window.updateScoreUI) {
-            window.updateScoreUI();
-        }
-        if (window.renderQuizzes) {
-            window.renderQuizzes();
-        }
     });
 
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+    if (loginScreen) loginScreen.classList.add('hidden');
+    if (dashboard) dashboard.classList.remove('hidden');
 }
 
 function checkManualLogin() {
     const saved = sessionStorage.getItem('manualUser');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            handleLoginSuccess(parsed);
-        } catch (error) {
-            console.warn('manual session parse failed', error);
-        }
+    if (!saved) return;
+    try {
+        const parsed = JSON.parse(saved);
+        handleLoginSuccess(parsed);
+    } catch (error) {
+        console.warn('manual session parse failed', error);
     }
 }
 
@@ -281,6 +208,7 @@ function loginWithGoogle() {
 function loginManually() {
     const username = document.getElementById('username-input').value.trim();
     const password = document.getElementById('password-input').value.trim();
+
     if (secureAccounts[username] && secureAccounts[username].pwd === password) {
         const userObj = {
             displayName: secureAccounts[username].name,
@@ -307,17 +235,16 @@ window.logout = logout;
 
 auth.onAuthStateChanged(async (user) => {
     if (user) {
-        const isTeacher = adminAccounts.has((user.email || '').toLowerCase()) || adminAccounts.has(user.uid || '');
-        const loginUser = {
-            uid: user.uid,
-            email: (user.email || '').toLowerCase(),
-            displayName: user.displayName || user.email || 'Google User',
-            role: isTeacher ? 'teacher' : 'student'
-        };
-        handleLoginSuccess(loginUser);
+        const profile = await ensureUserProfile(user);
+        applyProfileToGame(profile);
+
+        const loginScreen = document.getElementById('login-screen');
+        const dashboard = document.getElementById('dashboard');
+        if (loginScreen) loginScreen.classList.add('hidden');
+        if (dashboard) dashboard.classList.remove('hidden');
     } else {
         checkManualLogin();
     }
 });
 
-console.log('[auth] Firebase auth initialized with persistent user storage.');
+console.log('[auth] Firebase auth initialized with per-user profile storage.');
