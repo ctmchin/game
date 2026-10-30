@@ -12,6 +12,52 @@
     return copy;
   }
 
+  function getOptionLabel(index) {
+    return String.fromCharCode(65 + index);
+  }
+
+  function renderRandomizedOptions(question, containerId, onAnswer) {
+    const container = document.getElementById(containerId);
+    if (!container || !question || !Array.isArray(question.options)) return;
+
+    const optionEntries = question.options.map((text, originalIndex) => ({
+      text,
+      originalIndex
+    }));
+
+    const shuffled = fisherYatesShuffle(optionEntries);
+    const correctOriginalIndex = Number(question.correctIndex ?? question.correct ?? 0);
+
+    container.innerHTML = shuffled.map((entry, displayIndex) => {
+      const label = getOptionLabel(displayIndex);
+      return `
+        <button
+          class="btn-option"
+          data-original-index="${entry.originalIndex}"
+          data-label="${label}"
+          style="display:block; width:100%; text-align:left; margin:8px 0; padding:12px 14px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer;"
+        >${label}. ${entry.text}</button>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.btn-option').forEach((button) => {
+      button.addEventListener('click', function () {
+        const selectedOriginalIndex = Number(this.dataset.originalIndex);
+        const selectedLabel = this.dataset.label;
+        const isCorrect = selectedOriginalIndex === correctOriginalIndex;
+
+        if (typeof onAnswer === 'function') {
+          onAnswer({
+            selectedOriginalIndex,
+            selectedLabel,
+            isCorrect,
+            correctIndex: correctOriginalIndex
+          });
+        }
+      });
+    });
+  }
+
   const nativeSort = Array.prototype.sort;
   Array.prototype.sort = function(compareFn) {
     const source = compareFn && compareFn.toString ? compareFn.toString() : '';
@@ -165,6 +211,7 @@
   });
 
   window.shuffleArray = fisherYatesShuffle;
+  window.renderRandomizedOptions = renderRandomizedOptions;
   window.updateMemoUI = updateMemoUI;
   console.log('[script-patch] bad random sort fixed with Fisher-Yates shuffle');
 })();
