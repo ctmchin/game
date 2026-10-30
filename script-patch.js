@@ -1,8 +1,9 @@
 (function(){
-  if (window.__game_random_option_fix_installed) return;
-  window.__game_random_option_fix_installed = true;
+  if (window.__script_patch_installed) return;
+  window.__script_patch_installed = true;
 
-  function shuffleArray(arr) {
+  function fisherYatesShuffle(arr) {
+    if (!Array.isArray(arr)) return [];
     const copy = [...arr];
     for (let i = copy.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -11,67 +12,159 @@
     return copy;
   }
 
-  function renderOptionsRandomized(question, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container || !question || !Array.isArray(question.options)) return;
+  const nativeSort = Array.prototype.sort;
+  Array.prototype.sort = function(compareFn) {
+    const source = compareFn && compareFn.toString ? compareFn.toString() : '';
+    const isBadRandomSort = source.includes('Math.random()') && (
+      source.includes('- 0.5') ||
+      source.includes('-0.5') ||
+      source.includes('> 0.5') ||
+      source.includes('>0.5')
+    );
 
-    const optionEntries = question.options.map((text, originalIndex) => ({
-      text,
-      originalIndex
-    }));
-
-    const shuffled = shuffleArray(optionEntries);
-    container.innerHTML = shuffled.map((entry) => `
-      <button
-        class="btn-option"
-        data-original-index="${entry.originalIndex}"
-        data-correct-index="${question.correct ?? 0}"
-        onclick="handleRandomizedOptionClick(this, ${question.correct ?? 0}, ${JSON.stringify(question.explanation || '')}, ${Number(question.points || 0)})"
-        style="display:block; width:100%; text-align:left; margin:8px 0; padding:12px 14px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer;"
-      >${entry.text}</button>
-    `).join('');
-  }
-
-  function handleRandomizedOptionClick(button, correctIndex, explanation, points) {
-    const chosenIndex = Number(button.dataset.originalIndex);
-    const parent = button.parentElement;
-    const feedback = parent && parent.nextElementSibling ? parent.nextElementSibling : null;
-    const allButtons = parent ? parent.querySelectorAll('.btn-option') : [];
-
-    allButtons.forEach((btn) => {
-      btn.disabled = true;
-      btn.style.opacity = '0.8';
-      btn.style.cursor = 'default';
-    });
-
-    if (chosenIndex === correctIndex) {
-      button.style.background = '#d4edda';
-      button.style.borderColor = '#28a745';
-      if (feedback) {
-        feedback.className = 'feedback success';
-        feedback.innerHTML = `✅ 正確！${explanation || ''}`;
+    if (isBadRandomSort) {
+      const shuffled = fisherYatesShuffle(this);
+      for (let i = 0; i < shuffled.length; i++) {
+        this[i] = shuffled[i];
       }
-      if (typeof window.addPoints === 'function' && Number(points) > 0) {
-        window.addPoints(Number(points));
+      this.length = shuffled.length;
+      return this;
+    }
+
+    return nativeSort.call(this, compareFn);
+  };
+
+  window.pendingSelectedText = window.pendingSelectedText || "";
+
+  function updateMemoUI() {
+    try {
+      const list = document.getElementById('memo-list');
+      if (!list) return;
+
+      const memos = Array.isArray(window.memos) ? window.memos : [];
+      if (memos.length === 0) {
+        list.innerHTML = '<p style="color: #888; text-align: center;">暫無筆記</p>';
+        return;
       }
-    } else {
-      button.style.background = '#f8d7da';
-      button.style.borderColor = '#dc3545';
-      const correctBtn = Array.from(allButtons).find((btn) => Number(btn.dataset.originalIndex) === correctIndex);
-      if (correctBtn) {
-        correctBtn.style.background = '#d4edda';
-        correctBtn.style.borderColor = '#28a745';
-      }
-      if (feedback) {
-        feedback.className = 'feedback error';
-        feedback.innerHTML = `❌ 不對！${explanation || ''}`;
-      }
+
+      list.innerHTML = memos.map(m => `
+        <div class="memo-item" style="background:#fff; border:1px solid #ddd; border-left:4px solid #1976d2; padding:12px; border-radius:8px; margin-bottom:10px;">
+          <p style="font-weight:bold; margin:0 0 6px;">${(m && m.content) || ''}</p>
+          <div style="color:#888; font-size:0.85rem;">${(m && m.time) || ''}</div>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.warn('updateMemoUI error', e);
     }
   }
 
-  window.shuffleArray = shuffleArray;
-  window.renderOptionsRandomized = renderOptionsRandomized;
-  window.handleRandomizedOptionClick = handleRandomizedOptionClick;
+  function persistMemoState() {
+    try {
+      const memos = Array.isArray(window.memos) ? window.memos : [];
+      const payload = {
+        memos,
+        score: Number(window.userScore || 0),
+        coins: Number(window.userCoins || 0),
+        weeklyScore: Number(window.weeklyScore || 0),
+        lastLogin: Date.now()
+      };
 
-  console.log('[random-option-fix] display shuffling preserved, answer logic still uses original index');
+      if (window.currentUser && window.currentUser.uid) {
+        localStorage.setItem(`memos_${window.currentUser.uid}`, JSON.stringify(memos));
+        if (typeof window.saveUserProgress === 'function') {
+          window.saveUserProgress(payload);
+        }
+      } else {
+        localStorage.setItem('memos_guest', JSON.stringify(memos));
+      }
+    } catch (e) {
+      console.warn('[script-patch] persistMemoState failed', e);
+    }
+  }
+
+  window.confirmSaveHighlight = function() {
+    try {
+      const txt = window.pendingSelectedText || '';
+      if (txt.length > 0) {
+        window.memos = Array.isArray(window.memos) ? window.memos : [];
+        window.memos.unshift({ content: txt, time: new Date().toLocaleString() });
+        updateMemoUI();
+        persistMemoState();
+        window.pendingSelectedText = '';
+
+        const mobileBarEl = document.getElementById('mobile-highlight-bar');
+        if (mobileBarEl) mobileBarEl.classList.add('hidden');
+
+        alert('已儲存至專屬備忘錄！');
+      }
+    } catch (e) {
+      console.warn('confirmSaveHighlight error', e);
+    }
+  };
+
+  window.closeHighlightBar = function() {
+    try {
+      const mobileBarEl = document.getElementById('mobile-highlight-bar');
+      if (mobileBarEl) mobileBarEl.classList.add('hidden');
+      window.pendingSelectedText = '';
+    } catch (e) {
+      console.warn('closeHighlightBar error', e);
+    }
+  };
+
+  window.addManualMemo = function() {
+    try {
+      const input = document.getElementById('manual-memo-input');
+      if (!input) return;
+      const text = input.value.trim();
+      if (text !== '') {
+        window.memos = Array.isArray(window.memos) ? window.memos : [];
+        window.memos.unshift({ content: text, time: new Date().toLocaleString() });
+        updateMemoUI();
+        persistMemoState();
+        input.value = '';
+      }
+    } catch (e) {
+      console.warn('addManualMemo error', e);
+    }
+  };
+
+  window.loadMemos = function(uid) {
+    try {
+      const saved = localStorage.getItem(`memos_${uid}`);
+      if (saved) {
+        window.memos = JSON.parse(saved);
+      } else {
+        window.memos = [];
+      }
+      updateMemoUI();
+    } catch (e) {
+      console.warn('loadMemos error', e);
+      window.memos = [];
+      updateMemoUI();
+    }
+  };
+
+  document.addEventListener('selectionchange', function() {
+    try {
+      const selection = window.getSelection();
+      const selectedStr = selection ? selection.toString().trim() : '';
+      const mobileBarEl = document.getElementById('mobile-highlight-bar');
+      const previewEl = document.getElementById('highlight-text-preview');
+      if (selectedStr.length > 0 && mobileBarEl && previewEl) {
+        previewEl.innerText = selectedStr.slice(0, 200);
+        mobileBarEl.classList.remove('hidden');
+        window.pendingSelectedText = selectedStr;
+      } else if (mobileBarEl) {
+        mobileBarEl.classList.add('hidden');
+        window.pendingSelectedText = '';
+      }
+    } catch (e) {
+      console.warn('selectionchange handler error (patch)', e);
+    }
+  });
+
+  window.shuffleArray = fisherYatesShuffle;
+  window.updateMemoUI = updateMemoUI;
+  console.log('[script-patch] bad random sort fixed with Fisher-Yates shuffle');
 })();
